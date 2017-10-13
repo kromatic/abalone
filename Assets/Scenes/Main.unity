@@ -223,6 +223,8 @@ MonoBehaviour:
     type: 2}
   spacePrefab: {fileID: 4037912794649944, guid: 0c53841cf41954d5499405a9f676ae7c,
     type: 2}
+  piecePrefab: {fileID: 4826524146303648, guid: 59e98d09b526d42419f91fa493cc47ec,
+    type: 2}
   player1Score: 0
   player2Score: 0
 --- !u!4 &1994898983
