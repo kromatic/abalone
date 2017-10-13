@@ -9,8 +9,9 @@ namespace GameBoard
 	{
 		private List<List<Transform>> board;
 
-		public Board(Transform boardPrefab, Transform spacePrefab)
+		public Board(Transform boardPrefab, Transform spacePrefab, Transform piecePrefab)
 		{
+			// first create board and spaces
 			var boardSurface = GameObject.Instantiate(boardPrefab);
 			board = new List<List<Transform>>();
 			var rowLengths = new List<int> {5, 6, 7, 8, 9, 8, 7, 6, 5};
@@ -30,6 +31,34 @@ namespace GameBoard
 					x += c;
 				}
 				board.Add(row);
+			}
+
+			// then set up pieces in initial positions
+
+			foreach (int i in new List<int> {0, 1, 7, 8})
+			{
+				for (int j = 0; j < board[i].Count; j++)
+				{
+					var piece = GameObject.Instantiate(piecePrefab, board[i][j]);
+					if (i < 2)
+					{
+						var sprite = piece.GetComponent<SpriteRenderer>();
+						sprite.color = Color.white;
+					}
+				}
+			}
+
+			foreach (int i in new List<int> {2, 6})
+			{
+				for (int j = 2; j < 5; j++)
+				{
+					var piece = GameObject.Instantiate(piecePrefab, board[i][j]);
+					if (i == 2)
+					{
+						var sprite = piece.GetComponent<SpriteRenderer>();
+						sprite.color = Color.white;
+					}
+				}
 			}
 		}
 	}
