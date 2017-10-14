@@ -20,6 +20,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4826524146303648}
   - component: {fileID: 212510628013689918}
+  - component: {fileID: 114492850997362734}
   m_Layer: 0
   m_Name: BlackPrefab
   m_TagString: Untagged
@@ -40,6 +41,19 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &114492850997362734
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1624444970418466}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7fd36a09f90ec4a1ab0a9be10f1ebf33, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  position: {x: 0, y: 0}
+  completesSelection: 0
 --- !u!212 &212510628013689918
 SpriteRenderer:
   m_ObjectHideFlags: 1
