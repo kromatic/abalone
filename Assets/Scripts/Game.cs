@@ -46,7 +46,11 @@ public class Game : MonoBehaviour
 	{
 		Vector2 selectionAnchor = position;
 		if (selection.Count > 0) board.ResetPieces(selection);
-		if (potentialSelection.Count > 0) board.ResetPieces(potentialSelection);
+		else if (potentialSelection.Count > 0) board.ResetPieces(potentialSelection);
 		potentialSelection = board.GetPotentialSelection(position);
+		if (potentialSelection.Count == 1)
+		{
+			CompleteSelection(position);
+		}
 	}
 }
