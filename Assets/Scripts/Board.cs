@@ -35,25 +35,17 @@ namespace GameBoard
 
 			// then set up pieces in initial positions
 
-			foreach (int i in new List<int> {0, 1, 7, 8})
+			foreach (int i in new List<int> {0, 1, 2, 6, 7, 8})
 			{
 				for (int j = 0; j < board[i].Count; j++)
 				{
-					var piece = GameObject.Instantiate(piecePrefab, board[i][j]);
-					if (i < 2)
+					if ((i == 2 || i == 6) && (j < 2 || j > 4))
 					{
-						var sprite = piece.GetComponent<SpriteRenderer>();
-						sprite.color = Color.white;
+						continue;
 					}
-				}
-			}
-
-			foreach (int i in new List<int> {2, 6})
-			{
-				for (int j = 2; j < 5; j++)
-				{
 					var piece = GameObject.Instantiate(piecePrefab, board[i][j]);
-					if (i == 2)
+					piece.GetComponent<GamePiece>().position = new Vector2(i, j);
+					if (i < 3)
 					{
 						var sprite = piece.GetComponent<SpriteRenderer>();
 						sprite.color = Color.white;
