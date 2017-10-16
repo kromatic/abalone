@@ -14,17 +14,11 @@ public class Game : MonoBehaviour
 	private Board board;
 	private Vector2 selectionAnchor;
 	private List<Vector2> selection = new List<Vector2>();
-	private List<Vector2> potentialSelection = new List<Vector2>();;
+	private List<Vector2> potentialSelection = new List<Vector2>();
 
 	void Awake()
 	{
 		board = new Board(boardPrefab, spacePrefab, piecePrefab);
-	}
-	
-	// Update is called once per frame
-	void Update ()
-	{
-		
 	}
 
 	public void CompleteSelection(Vector2 position)
@@ -38,15 +32,20 @@ public class Game : MonoBehaviour
 			i += deltaX; j += deltaY;
 		}
 		board.ResetPieces(potentialSelection);
-		potentialSelection.Clear();
 		board.Select(selection);
 	}
 
 	public void Anchor(Vector2 position)
 	{
-		Vector2 selectionAnchor = position;
-		if (selection.Count > 0) board.ResetPieces(selection);
-		else if (potentialSelection.Count > 0) board.ResetPieces(potentialSelection);
+		selectionAnchor = position;
+		if (selection.Count > 0)
+		{
+			board.ResetPieces(selection);
+		}
+		else if (potentialSelection.Count > 0)
+		{
+			board.ResetPieces(potentialSelection);
+		}
 		potentialSelection = board.GetPotentialSelection(position);
 		if (potentialSelection.Count == 1)
 		{

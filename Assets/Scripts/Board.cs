@@ -12,7 +12,7 @@ namespace GameBoard
 		public Board(Transform boardPrefab, Transform spacePrefab, Transform piecePrefab)
 		{
 			// first create board and spaces
-			var boardSurface = GameObject.Instantiate(boardPrefab);
+			var boardSurface = GameObject.Instantiate(boardPrefab, GameObject.Find("Game").GetComponent<Game>().transform);
 			board = new List<List<Transform>>();
 			var rowLengths = new List<int> {5, 6, 7, 8, 9, 8, 7, 6, 5};
 			var c = spacePrefab.localScale[0] * boardPrefab.localScale[0] * 1.1f;
@@ -49,20 +49,24 @@ namespace GameBoard
 					{
 						var sprite = piece.GetComponent<SpriteRenderer>();
 						sprite.color = Color.white;
+						piece.tag = "White";
 					}
 				}
 			}
 		}
 
-		public void ResetPieces(List<Vector2> pieces)
+		public void ResetPieces(List<Vector2> positions)
 		{
-			foreach(var pos in pieces)
+			foreach(var pos in positions)
 			{
 				int i = (int)pos[0], j = (int)pos[1];
-				var piece = board[i][j].GetComponent<GamePiece>();
+				var piece = board[i][j].GetChild(0).GetComponent<GamePiece>();
 				piece.completesSelection = false;
 				piece.selected = false;
+				var sprite = piece.GetComponent<SpriteRenderer>();
+				sprite.color = (piece.tag == "Black") ? Color.black: Color.white;
 			}
+			positions.Clear();
 		}
 
 		public void Select(List<Vector2> selection)
@@ -70,10 +74,11 @@ namespace GameBoard
 			foreach(var pos in selection)
 			{
 				int i = (int)pos[0], j = (int)pos[1];
-				var sprite = board[i][j].GetComponent<SpriteRenderer>();
+				var piece = board[i][j];
+				var sprite = piece.GetComponent<SpriteRenderer>();
 				var newColor = (sprite.color == Color.black) ? new Color(0, 0, 0, 0.7f): new Color(1, 1, 1, 0.7f);
 				sprite.color = newColor;
-				board[i][j].GetComponent<GamePiece>().selected = true; 
+				piece.GetComponent<GamePiece>().selected = true;
 			}
 		}
 
@@ -81,24 +86,35 @@ namespace GameBoard
 		{
 			var res = new List<Vector2>();
 			int i = (int)anchor[0], j = (int)anchor[1];
-			var color = board[i][j].GetComponent<SpriteRenderer>().color;
-			for (int y = j; y < j + 3; y++)
+			var anchorPiece = board[i][j].GetChild(0);
+			int x, y;
+			for (y = j; y < j + 3; y++)
 			{
 				if (board[i][y].childCount == 0) break;
-				if (board[i][y].GetChild(0).GetComponent<SpriteRenderer>().color != color) break;
+				var curPiece = board[i][y].GetChild(0);
+				if (curPiece.tag != anchorPiece.tag) break;
+				curPiece.GetComponent<GamePiece>().completesSelection = true;
 				res.Add(new Vector2(i, y));
 			}
-			for (int x = i; x < i + 3; x++)
+			for (x = i + 1; x < i + 3; x++)
 			{
 				if (board[x][j].childCount == 0) break;
-				if (board[x][j].GetChild(0).GetComponent<SpriteRenderer>().color != color) break;
+				var curPiece = board[x][j].GetChild(0);
+				if (curPiece.tag != anchorPiece.tag) break;
+				curPiece.GetComponent<GamePiece>().completesSelection = true;
 				res.Add(new Vector2(x, j));
 			}
-			int x = i, y = j;
-			while (x - i < 3)
+			y = j - 1;
+			for(x = i + 1; x < i + 3; x++)
 			{
-				
+				if (board[x][y].childCount == 0) break;
+				var curPiece = board[x][y].GetChild(0);
+				if (curPiece.tag != anchorPiece.tag) break;
+				curPiece.GetComponent<GamePiece>().completesSelection = true;
+				res.Add(new Vector2(x, y));
+				y--;
 			}
+			return res;
 		}
 	}
 }

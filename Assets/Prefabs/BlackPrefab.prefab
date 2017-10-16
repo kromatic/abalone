@@ -54,6 +54,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   position: {x: 0, y: 0}
   completesSelection: 0
+  selected: 0
 --- !u!212 &212510628013689918
 SpriteRenderer:
   m_ObjectHideFlags: 1

@@ -15,10 +15,12 @@ public class GamePiece : MonoBehaviour
 		var game = GameObject.Find("Game").GetComponent<Game>();
 		if (completesSelection)
 		{
+			Debug.Log("completing selection");
 			game.CompleteSelection(position);
 		}
 		else
 		{
+			Debug.Log("anchoring");
 			game.Anchor(position);
 		}
 	}
