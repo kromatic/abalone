@@ -78,7 +78,7 @@ namespace GameBoard
 				var sprite = piece.GetComponent<SpriteRenderer>();
 				var newColor = (sprite.color == Color.black) ? new Color(0, 0, 0, 0.7f): new Color(1, 1, 1, 0.7f);
 				sprite.color = newColor;
-				piece.GetComponent<GamePiece>().selected = true;
+				piece.GetChild(0).GetComponent<GamePiece>().selected = true;
 			}
 		}
 
@@ -88,7 +88,7 @@ namespace GameBoard
 			int i = (int)anchor[0], j = (int)anchor[1];
 			var anchorPiece = board[i][j].GetChild(0);
 			int x, y;
-			for (y = j; y < j + 3; y++)
+			for (y = j; y < j + 3 && y < board[i].Count; y++)
 			{
 				if (board[i][y].childCount == 0) break;
 				var curPiece = board[i][y].GetChild(0);
@@ -96,7 +96,7 @@ namespace GameBoard
 				curPiece.GetComponent<GamePiece>().completesSelection = true;
 				res.Add(new Vector2(i, y));
 			}
-			for (x = i + 1; x < i + 3; x++)
+			for (x = i + 1; x < i + 3 && x < board.Count; x++)
 			{
 				if (board[x][j].childCount == 0) break;
 				var curPiece = board[x][j].GetChild(0);
@@ -107,6 +107,7 @@ namespace GameBoard
 			y = j - 1;
 			for(x = i + 1; x < i + 3; x++)
 			{
+				if (x == board.Count || y == -1) break;
 				if (board[x][y].childCount == 0) break;
 				var curPiece = board[x][y].GetChild(0);
 				if (curPiece.tag != anchorPiece.tag) break;

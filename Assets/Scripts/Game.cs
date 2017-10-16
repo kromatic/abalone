@@ -28,7 +28,7 @@ public class Game : MonoBehaviour
 		int i = (int)selectionAnchor[0], j = (int)selectionAnchor[1];
 		while ((i != position[0]) || (j != position[1]))
 		{
-			selection.Add(new Vector2(i, j));
+			selection.Add(new Vector2(i, j));	
 			i += deltaX; j += deltaY;
 		}
 		board.ResetPieces(potentialSelection);

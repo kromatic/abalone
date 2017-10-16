@@ -12,6 +12,7 @@ public class GamePiece : MonoBehaviour
 
 	void OnMouseDown()
 	{
+		Debug.Log("HELLO");
 		var game = GameObject.Find("Game").GetComponent<Game>();
 		if (completesSelection)
 		{
