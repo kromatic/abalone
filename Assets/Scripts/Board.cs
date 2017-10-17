@@ -11,8 +11,9 @@ namespace GameBoard
 
 		public Board(Transform boardPrefab, Transform spacePrefab, Transform piecePrefab)
 		{
-			// first create board and spaces
-			var boardSurface = GameObject.Instantiate(boardPrefab, GameObject.Find("Game").GetComponent<Game>().transform);
+			// first create board
+			var boardSurface = GameObject.Instantiate(boardPrefab, GameObject.Find("Game").transform);
+			// then create spaces
 			board = new List<List<Transform>>();
 			var rowLengths = new List<int> {5, 6, 7, 8, 9, 8, 7, 6, 5};
 			var c = spacePrefab.localScale[0] * boardPrefab.localScale[0] * 1.1f;
@@ -34,7 +35,6 @@ namespace GameBoard
 			}
 
 			// then set up pieces in initial positions
-
 			foreach (int i in new List<int> {0, 1, 2, 6, 7, 8})
 			{
 				for (int j = 0; j < board[i].Count; j++)
@@ -43,13 +43,13 @@ namespace GameBoard
 					{
 						continue;
 					}
-					var piece = GameObject.Instantiate(piecePrefab, board[i][j]);
-					piece.GetComponent<GamePiece>().position = new Vector2(i, j);
+					var piece = GameObject.Instantiate(piecePrefab, board[i][j]).GetComponent<GamePiece>();
+					piece.position = new Vector2(i, j);
 					if (i < 3)
 					{
 						var sprite = piece.GetComponent<SpriteRenderer>();
 						sprite.color = Color.white;
-						piece.tag = "White";
+						piece.color = "white";
 					}
 				}
 			}
@@ -59,12 +59,7 @@ namespace GameBoard
 		{
 			foreach(var pos in positions)
 			{
-				int i = (int)pos[0], j = (int)pos[1];
-				var piece = board[i][j].GetChild(0).GetComponent<GamePiece>();
-				piece.completesSelection = false;
-				piece.selected = false;
-				var sprite = piece.GetComponent<SpriteRenderer>();
-				sprite.color = (piece.tag == "Black") ? Color.black: Color.white;
+				GetPiece(pos).Clear();
 			}
 			positions.Clear();
 		}
@@ -73,49 +68,38 @@ namespace GameBoard
 		{
 			foreach(var pos in selection)
 			{
-				int i = (int)pos[0], j = (int)pos[1];
-				var piece = board[i][j];
-				var sprite = piece.GetComponent<SpriteRenderer>();
-				var newColor = (sprite.color == Color.black) ? new Color(0, 0, 0, 0.7f): new Color(1, 1, 1, 0.7f);
-				sprite.color = newColor;
-				piece.GetChild(0).GetComponent<GamePiece>().selected = true;
+				GetPiece(pos).Select();
 			}
 		}
 
-		public List<Vector2> GetPotentialSelection(Vector2 anchor)
+		public void GetPotentialSelection(Vector2 anchorPosition, List<Vector2> potentialSelection)
 		{
-			var res = new List<Vector2>();
-			int i = (int)anchor[0], j = (int)anchor[1];
-			var anchorPiece = board[i][j].GetChild(0);
-			int x, y;
-			for (y = j; y < j + 3 && y < board[i].Count; y++)
+			var anchor = GetPiece(anchorPosition);
+			anchor.MarkSelectable();
+			potentialSelection.Add(anchorPosition);
+			int i = (int)anchorPosition[0], j = (int)anchorPosition[1];
+			for (int deltaX = -1; deltaX < 2; deltaX++)
 			{
-				if (board[i][y].childCount == 0) break;
-				var curPiece = board[i][y].GetChild(0);
-				if (curPiece.tag != anchorPiece.tag) break;
-				curPiece.GetComponent<GamePiece>().completesSelection = true;
-				res.Add(new Vector2(i, y));
+				for (int deltaY = -1)
+				int deltaX = (int)delta[0], deltaY = (int)delta[1];
+				int x = i + deltaX, y = j + deltaY;
+				while (x < board.Count && 0 <= y && y < board[x].Count)
+				{
+					if (board[x][y].childCount == 0) break;
+					var pos = new Vector2(x, y); var piece = GetPiece(pos);
+					if (piece.color != anchor.color) break;
+					Console.Write(x); Console.WriteLine(y);
+					piece.MarkSelectable();
+					potentialSelection.Add(pos);
+					x += deltaX; y += deltaY;
+				}
 			}
-			for (x = i + 1; x < i + 3 && x < board.Count; x++)
-			{
-				if (board[x][j].childCount == 0) break;
-				var curPiece = board[x][j].GetChild(0);
-				if (curPiece.tag != anchorPiece.tag) break;
-				curPiece.GetComponent<GamePiece>().completesSelection = true;
-				res.Add(new Vector2(x, j));
-			}
-			y = j - 1;
-			for(x = i + 1; x < i + 3; x++)
-			{
-				if (x == board.Count || y == -1) break;
-				if (board[x][y].childCount == 0) break;
-				var curPiece = board[x][y].GetChild(0);
-				if (curPiece.tag != anchorPiece.tag) break;
-				curPiece.GetComponent<GamePiece>().completesSelection = true;
-				res.Add(new Vector2(x, y));
-				y--;
-			}
-			return res;
+		}
+
+		GamePiece GetPiece(Vector2 pos)
+		{
+			int i = (int)pos[0], j = (int)pos[1];
+			return board[i][j].GetChild(0).GetComponent<GamePiece>();
 		}
 	}
 }

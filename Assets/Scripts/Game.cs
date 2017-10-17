@@ -23,14 +23,14 @@ public class Game : MonoBehaviour
 
 	public void CompleteSelection(Vector2 position)
 	{
-		var deltaX = Math.Sign(position[0] - selectionAnchor[1]);
-		var deltaY = Math.Sign(position[1] - selectionAnchor[1]);
-		int i = (int)selectionAnchor[0], j = (int)selectionAnchor[1];
-		while ((i != position[0]) || (j != position[1]))
-		{
-			selection.Add(new Vector2(i, j));	
-			i += deltaX; j += deltaY;
-		}
+		selection.Add(selectionAnchor);
+		int x = (int)selectionAnchor[0], y = (int)selectionAnchor[1];
+		int endX = (int)position[0], endY = (int)position[1];
+		var deltaX = Math.Sign(endX - x);
+		var deltaY = Math.Sign(endY - y);
+		x += deltaX; y += deltaY;
+		if (x != endX || y != endY) selection.Add(new Vector2(x, y));
+		selection.Add(position);
 		board.ResetPieces(potentialSelection);
 		board.Select(selection);
 	}
@@ -46,7 +46,7 @@ public class Game : MonoBehaviour
 		{
 			board.ResetPieces(potentialSelection);
 		}
-		potentialSelection = board.GetPotentialSelection(position);
+		board.GetPotentialSelection(position, potentialSelection);
 		if (potentialSelection.Count == 1)
 		{
 			CompleteSelection(position);
