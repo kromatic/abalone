@@ -69,8 +69,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   position: {x: 0, y: 0}
-  completesSelection: 0
+  color: black
+  selectable: 0
   selected: 0
+  selectedColorWhite: {r: 0.8014706, g: 0.67182094, b: 0.67182094, a: 1}
+  selectedColorBlack: {r: 0.29803923, g: 0.08627451, b: 0.039215688, a: 1}
+  selectableColorWhite: {r: 0.78431374, g: 0.8352941, b: 0.9843137, a: 1}
+  selectableColorBlack: {r: 0.06666667, g: 0.12156863, b: 0.27450982, a: 1}
 --- !u!212 &212510628013689918
 SpriteRenderer:
   m_ObjectHideFlags: 1

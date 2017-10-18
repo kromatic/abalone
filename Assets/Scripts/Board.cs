@@ -9,6 +9,16 @@ namespace GameBoard
 	{
 		private List<List<Transform>> board;
 
+		private Dictionary<string, Vector2> directions = new Dictionary<string, Vector2>
+		{
+			{"NW", new Vector2(-1, -1)},
+			{"NE", new Vector2(-1,  0)},
+			{"E",  new Vector2(0,   1)},
+			{"SE", new Vector2(1,   1)},
+			{"SW", new Vector2(1,   0)},
+			{"W",  new Vector2(0,  -1)}
+		};
+
 		public Board(Transform boardPrefab, Transform spacePrefab, Transform piecePrefab)
 		{
 			// first create board
@@ -16,7 +26,7 @@ namespace GameBoard
 			// then create spaces
 			board = new List<List<Transform>>();
 			var rowLengths = new List<int> {5, 6, 7, 8, 9, 8, 7, 6, 5};
-			var c = spacePrefab.localScale[0] * boardPrefab.localScale[0] * 1.1f;
+			var c = spacePrefab.localScale.x * boardPrefab.localScale.x * 1.1f;
 			var r = c / 2;
 			for (int i = 0; i < 9; i++)
 			{
@@ -55,51 +65,77 @@ namespace GameBoard
 			}
 		}
 
-		public void ResetPieces(List<Vector2> positions)
+		public void ResetPieces(List<GamePiece> pieces)
 		{
-			foreach(var pos in positions)
+			foreach(var piece in pieces)
 			{
-				GetPiece(pos).Clear();
+				piece.Clear();
 			}
-			positions.Clear();
+			pieces.Clear();
 		}
 
-		public void Select(List<Vector2> selection)
+		public void Select(List<GamePiece> selection)
 		{
-			foreach(var pos in selection)
+			foreach(var piece in selection)
 			{
-				GetPiece(pos).Select();
+				piece.Select();
 			}
 		}
 
-		public void GetPotentialSelection(Vector2 anchorPosition, List<Vector2> potentialSelection)
+		public void GetPotentialSelection(GamePiece anchor, List<GamePiece> potentialSelection)
 		{
-			var anchor = GetPiece(anchorPosition);
 			anchor.MarkSelectable();
-			potentialSelection.Add(anchorPosition);
-			int i = (int)anchorPosition[0], j = (int)anchorPosition[1];
-			for (int deltaX = -1; deltaX < 2; deltaX++)
+			potentialSelection.Add(anchor);
+			foreach (var dir in new List<string> {"NW", "NE", "E", "SE", "SW", "W"})
 			{
-				for (int deltaY = -1)
-				int deltaX = (int)delta[0], deltaY = (int)delta[1];
-				int x = i + deltaX, y = j + deltaY;
-				while (x < board.Count && 0 <= y && y < board[x].Count)
+				var cur = anchor;
+				for(int c = 1; c < 3; c++)
 				{
-					if (board[x][y].childCount == 0) break;
-					var pos = new Vector2(x, y); var piece = GetPiece(pos);
-					if (piece.color != anchor.color) break;
-					Console.Write(x); Console.WriteLine(y);
-					piece.MarkSelectable();
-					potentialSelection.Add(pos);
-					x += deltaX; y += deltaY;
+					Debug.Log("trying to get neighbor");
+					cur = GetNeighbor(cur, dir);
+					if (cur == null) break;
+					if (cur.color != anchor.color) break;
+					cur.MarkSelectable();
+					potentialSelection.Add(cur);
 				}
 			}
 		}
 
-		GamePiece GetPiece(Vector2 pos)
+		public GamePiece GetPiece(Vector2 pos)
 		{
 			int i = (int)pos[0], j = (int)pos[1];
 			return board[i][j].GetChild(0).GetComponent<GamePiece>();
 		}
+
+		private GamePiece GetNeighbor(GamePiece piece, string dir)
+		{
+			var vector = directions[dir];
+			int deltaX = (int)vector.x, deltaY = (int)vector.y;
+			if (piece == null)
+			{
+				Debug.Log("gay");
+			}
+			int i = (int)piece.position.x, j = (int)piece.position.y;
+			if (i == 4 && dir[0] == 'S')
+			{
+				deltaY--;
+			}
+			else if (i > 4 && dir.Length == 2)
+			{
+				deltaY += (dir[0] == 'N') ? 1 : -1;
+			}
+			int x = i + deltaX, y = j + deltaY;
+			if (x < 0 || x == board.Count || y < 0 || y == board[x].Count)
+			{
+				return null;
+			}
+			if (board[x][y].childCount == 0)
+			{
+				return null;
+			}
+			return GetPiece(new Vector2(x, y));
+		}
+
+
 	}
 }

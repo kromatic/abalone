@@ -9,8 +9,10 @@ public class GamePiece : MonoBehaviour
 	public string color = "black";
 	public bool selectable = false;
 	public bool selected = false;
-	public float selectableAlpha = 0.7f;
-	public float selectedAlpha = 0.5f;
+	public Color selectedColorWhite;
+	public Color selectedColorBlack;
+	public Color selectableColorWhite;
+	public Color selectableColorBlack;
 
 	void OnMouseDown()
 	{
@@ -18,36 +20,30 @@ public class GamePiece : MonoBehaviour
 		if (selectable)
 		{
 			Debug.Log("completing selection");
-			game.CompleteSelection(position);
+			game.CompleteSelection(this);
 		}
 		else
 		{
 			Debug.Log("anchoring");
-			game.Anchor(position);
+			game.Anchor(this);
 		}
 	}
 
 	public void Select()
 	{
 		selected = true;
-		var sprite = GetComponent<SpriteRenderer>();
-		var color = sprite.color; color.a = selectedAlpha;
-		sprite.color = color;
+		GetComponent<SpriteRenderer>().color = (color == "black") ? selectedColorBlack : selectedColorWhite;
 	}
 
 	public void MarkSelectable()
 	{
 		selectable = true;
-		var sprite = GetComponent<SpriteRenderer>();
-		var color = sprite.color; color.a = selectableAlpha;
-		sprite.color = color;
+		GetComponent<SpriteRenderer>().color = (color == "black") ? selectableColorBlack : selectableColorWhite;
 	}
 
 	public void Clear()
 	{
 		selected = false; selectable = false;
-		var sprite = GetComponent<SpriteRenderer>();
-		var color = sprite.color; color.a = 1;
-		sprite.color = color;
+		GetComponent<SpriteRenderer>().color = (color == "black") ? Color.black : Color.white;
 	}
 }
