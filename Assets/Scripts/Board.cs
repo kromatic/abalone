@@ -7,16 +7,17 @@ public class Board : MonoBehaviour
 {
 	private List<List<Transform>> board;
 	public Transform spacePrefab;
-	public Transform piecePrefab;
+	public Transform blackPrefab;
+	public Transform whitePrefab;
 
-	private Dictionary<string, Vector2> directions = new Dictionary<string, Vector2>
+	private Dictionary<string, Location> directions = new Dictionary<string, Location>
 	{
-		{"NW", new Vector2(-1, -1)},
-		{"NE", new Vector2(-1,  0)},
-		{"E",  new Vector2(0,   1)},
-		{"SE", new Vector2(1,   1)},
-		{"SW", new Vector2(1,   0)},
-		{"W",  new Vector2(0,  -1)}
+		{"NW", new Location(-1, -1)},
+		{"NE", new Location(-1,  0)},
+		{"E",  new Location(0,   1)},
+		{"SE", new Location(1,   1)},
+		{"SW", new Location(1,   0)},
+		{"W",  new Location(0,  -1)}
 	};
 
 	void Awake()
@@ -35,30 +36,25 @@ public class Board : MonoBehaviour
 			for (int j = 0; j < len; j++)
 			{
 				var position = new Vector3(x, y, 0);
-				var cell = GameObject.Instantiate(spacePrefab, position, Quaternion.identity, transform);
+				var cell = Instantiate(spacePrefab, position, Quaternion.identity, this.transform);
 				row.Add(cell);
 				x += c;
 			}
 			board.Add(row);
 		}
 
-		// then set up pieces in initial positions
+		// then set up pieces in initial Locations
 		foreach (int i in new List<int> {0, 1, 2, 6, 7, 8})
 		{
+			var piecePrefab = (i < 3) ? whitePrefab : blackPrefab;
 			for (int j = 0; j < board[i].Count; j++)
 			{
 				if ((i == 2 || i == 6) && (j < 2 || j > 4))
 				{
 					continue;
 				}
-				var piece = GameObject.Instantiate(piecePrefab, board[i][j]).GetComponent<GamePiece>();
-				piece.position = new Vector2(i, j);
-				if (i < 3)
-				{
-					var sprite = piece.GetComponent<SpriteRenderer>();
-					sprite.color = Color.white;
-					piece.color = "white";
-				}
+				var piece = Instantiate(piecePrefab, board[i][j]).GetComponent<GamePiece>();
+				piece.location = new Location(i, j);
 			}
 		}
 	}
@@ -82,14 +78,14 @@ public class Board : MonoBehaviour
 
 	public void GetPotentialSelection(GamePiece anchor, List<GamePiece> potentialSelection)
 	{
-		anchor.MarkAnchor();
+		anchor.MarkSelectable();
 		potentialSelection.Add(anchor);
-		foreach (var dir in new List<string> {"NW", "NE", "E", "SE", "SW", "W"})
+		foreach (var dir in directions.Keys)
 		{
 			var cur = anchor;
 			for(int c = 1; c < 3; c++)
 			{
-				Debug.Log("trying to get neighbor");
+				// Debug.Log("trying to get neighbor");
 				cur = GetNeighbor(cur, dir);
 				if (cur == null) break;
 				if (cur.color != anchor.color) break;
@@ -99,17 +95,16 @@ public class Board : MonoBehaviour
 		}
 	}
 
-	public GamePiece GetPiece(Vector2 pos)
+	public GamePiece GetPiece(Location loc)
 	{
-		int i = (int)pos[0], j = (int)pos[1];
-		return board[i][j].GetChild(0).GetComponent<GamePiece>();
+		return board[loc.x][loc.y].GetChild(0).GetComponent<GamePiece>();
 	}
 
 	private GamePiece GetNeighbor(GamePiece piece, string dir)
 	{
 		var vector = directions[dir];
 		int deltaX = (int)vector.x, deltaY = (int)vector.y;
-		int i = (int)piece.position.x, j = (int)piece.position.y;
+		int i = piece.location.x, j = piece.location.y;
 		if (i == 4 && dir[0] == 'S')
 		{
 			deltaY--;
@@ -127,6 +122,40 @@ public class Board : MonoBehaviour
 		{
 			return null;
 		}
-		return GetPiece(new Vector2(x, y));
+		return GetPiece(new Location(x, y));
+	}
+
+	public List<string> GetMoves(List<GamePiece> selection)
+	{
+		var res = new List<string>();
+		foreach(var dir in directions.Keys)
+		{
+			if (CheckMove(selection, dir))
+			{
+				res.Add(dir);
+			}
+		}
+
+		return res;
+	}
+
+	private bool CheckMove(List<GamePiece> selection, string dir)
+	{
+		foreach (var piece in selection)
+		{
+			continue;
+		}
+		return true;
+	}
+
+}
+
+public struct Location
+{
+	public int x, y;
+
+	public Location(int x, int y)
+	{
+		this.x = x; this.y = y;
 	}
 }

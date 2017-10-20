@@ -11,6 +11,7 @@ public class Game : MonoBehaviour
 	private GamePiece anchor;
 	private List<GamePiece> selection = new List<GamePiece>();
 	private List<GamePiece> potentialSelection = new List<GamePiece>();
+	private List<string> moves = new List<string>();
 
 	void Awake()
 	{
@@ -20,18 +21,19 @@ public class Game : MonoBehaviour
 	public void CompleteSelection(GamePiece piece)
 	{
 		selection.Add(anchor);
-		int x = (int)anchor.position.x, y = (int)anchor.position.y;
-		int endX = (int)piece.position.x, endY = (int)piece.position.y;
+		int x = anchor.location.x, y = anchor.location.y;
+		int endX = piece.location.x, endY = piece.location.y;
 		var deltaX = Math.Sign(endX - x);
 		var deltaY = Math.Sign(endY - y);
 		x += deltaX; y += deltaY;
 		if (x != endX || y != endY)
 		{
-			selection.Add(board.GetPiece(new Vector2(x, y)));
+			selection.Add(board.GetPiece(new Location(x, y)));
 		}
 		selection.Add(piece);
 		board.ResetPieces(potentialSelection);
 		board.Select(selection);
+		moves = board.GetMoves(selection);
 	}
 
 	public void Anchor(GamePiece anchor)

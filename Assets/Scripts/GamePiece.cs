@@ -4,28 +4,26 @@ using UnityEngine;
 
 public class GamePiece : MonoBehaviour
 {
-	public Vector2 position;
+	public Location location;
 	public string color = "black";
+	public bool anchor = false;
 	public bool selectable = false;
 	public bool selected = false;
-	public Color selectedColorWhite;
-	public Color selectedColorBlack;
-	public Color selectableColorWhite;
-	public Color selectableColorBlack;
-	public Color anchorColorWhite;
-	public Color anchorColorBlack;
+	public Color normalColor;
+	public Color selectedColor;
+	public Color selectableColor;
+	public Color anchorColor;
 
 	void OnMouseDown()
 	{
 		var game = GameObject.Find("Game").GetComponent<Game>();
 		if (selectable)
 		{
-			Debug.Log("completing selection");
 			game.CompleteSelection(this);
 		}
 		else
 		{
-			Debug.Log("anchoring");
+			anchor = true;
 			game.Anchor(this);
 		}
 	}
@@ -33,24 +31,19 @@ public class GamePiece : MonoBehaviour
 	public void Select()
 	{
 		selected = true;
-		GetComponent<SpriteRenderer>().color = (color == "black") ? selectedColorBlack : selectedColorWhite;
+		GetComponent<SpriteRenderer>().color = selectedColor;
 	}
 
 	public void MarkSelectable()
 	{
 		selectable = true;
-		GetComponent<SpriteRenderer>().color = (color == "black") ? selectableColorBlack : selectableColorWhite;
-	}
+		GetComponent<SpriteRenderer>().color = (anchor == true) ? anchorColor : selectableColor;
 
-	public void MarkAnchor()
-	{
-		selectable = true;
-		GetComponent<SpriteRenderer>().color = (color == "black") ? anchorColorBlack : anchorColorWhite;
 	}
 
 	public void Clear()
 	{
-		selected = false; selectable = false;
-		GetComponent<SpriteRenderer>().color = (color == "black") ? Color.black : Color.white;
+		selected = false; selectable = false; anchor = false;
+		GetComponent<SpriteRenderer>().color = normalColor;
 	}
 }
