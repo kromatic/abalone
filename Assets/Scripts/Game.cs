@@ -1,14 +1,10 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using GameBoard;
 using System;
 
 public class Game : MonoBehaviour
 {
-	public Transform boardPrefab;
-	public Transform spacePrefab;
-	public Transform piecePrefab;
 	public int player1Score = 0;
 	public int player2Score = 0;
 	private Board board;
@@ -18,7 +14,7 @@ public class Game : MonoBehaviour
 
 	void Awake()
 	{
-		board = new Board(boardPrefab, spacePrefab, piecePrefab);
+		board = GameObject.Find("Board").GetComponent<Board>();
 	}
 
 	public void CompleteSelection(GamePiece piece)
@@ -49,6 +45,11 @@ public class Game : MonoBehaviour
 		{
 			board.ResetPieces(potentialSelection);
 		}
+		if (anchor == null)
+		{
+			Debug.Log("asdlfk");
+		}
+
 		board.GetPotentialSelection(anchor, potentialSelection);
 		if (potentialSelection.Count == 1)
 		{
