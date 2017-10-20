@@ -84,7 +84,7 @@ namespace GameBoard
 
 		public void GetPotentialSelection(GamePiece anchor, List<GamePiece> potentialSelection)
 		{
-			anchor.MarkSelectable();
+			anchor.MarkAnchor();
 			potentialSelection.Add(anchor);
 			foreach (var dir in new List<string> {"NW", "NE", "E", "SE", "SW", "W"})
 			{
@@ -111,10 +111,6 @@ namespace GameBoard
 		{
 			var vector = directions[dir];
 			int deltaX = (int)vector.x, deltaY = (int)vector.y;
-			if (piece == null)
-			{
-				Debug.Log("gay");
-			}
 			int i = (int)piece.position.x, j = (int)piece.position.y;
 			if (i == 4 && dir[0] == 'S')
 			{

@@ -13,6 +13,8 @@ public class GamePiece : MonoBehaviour
 	public Color selectedColorBlack;
 	public Color selectableColorWhite;
 	public Color selectableColorBlack;
+	public Color anchorColorWhite;
+	public Color anchorColorBlack;
 
 	void OnMouseDown()
 	{
@@ -39,6 +41,12 @@ public class GamePiece : MonoBehaviour
 	{
 		selectable = true;
 		GetComponent<SpriteRenderer>().color = (color == "black") ? selectableColorBlack : selectableColorWhite;
+	}
+
+	public void MarkAnchor()
+	{
+		selectable = true;
+		GetComponent<SpriteRenderer>().color = (color == "black") ? anchorColorBlack : anchorColorWhite;
 	}
 
 	public void Clear()

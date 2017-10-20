@@ -76,6 +76,8 @@ MonoBehaviour:
   selectedColorBlack: {r: 0.29803923, g: 0.08627451, b: 0.039215688, a: 1}
   selectableColorWhite: {r: 0.78431374, g: 0.8352941, b: 0.9843137, a: 1}
   selectableColorBlack: {r: 0.06666667, g: 0.12156863, b: 0.27450982, a: 1}
+  anchorColorWhite: {r: 0.233564, g: 0.4270557, b: 0.99264705, a: 0}
+  anchorColorBlack: {r: 0.015570934, g: 0.08138021, b: 0.2647059, a: 0}
 --- !u!212 &212510628013689918
 SpriteRenderer:
   m_ObjectHideFlags: 1
