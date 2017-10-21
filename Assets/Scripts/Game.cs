@@ -8,54 +8,49 @@ public class Game : MonoBehaviour
 	public int player1Score = 0;
 	public int player2Score = 0;
 	private Board board;
-	private GamePiece anchor;
-	private List<GamePiece> selection = new List<GamePiece>();
-	private List<GamePiece> potentialSelection = new List<GamePiece>();
-	private List<string> moves = new List<string>();
+	private Vector anchorLocation;
+	private List<Vector> selection = new List<Vector>();
+	private List<Vector> potentialSelection = new List<Vector>();
+	private List<string> potentialMoves = new List<string>();
 
 	void Awake()
 	{
 		board = GameObject.Find("Board").GetComponent<Board>();
 	}
 
-	public void CompleteSelection(GamePiece piece)
+	public void CompleteSelection(Vector loc)
 	{
-		selection.Add(anchor);
-		int x = anchor.location.x, y = anchor.location.y;
-		int endX = piece.location.x, endY = piece.location.y;
-		var deltaX = Math.Sign(endX - x);
-		var deltaY = Math.Sign(endY - y);
-		x += deltaX; y += deltaY;
-		if (x != endX || y != endY)
+		selection.Add(anchorLocation);
+		var middle = anchorLocation + Vector.Delta(loc, anchorLocation);
+		if (middle != loc)
 		{
-			selection.Add(board.GetPiece(new Location(x, y)));
+			selection.Add(middle);
 		}
-		selection.Add(piece);
+		selection.Add(loc);
 		board.ResetPieces(potentialSelection);
+		potentialSelection.Clear();
 		board.Select(selection);
-		moves = board.GetMoves(selection);
+		potentialMoves = board.GetMoves(selection);
 	}
 
-	public void Anchor(GamePiece anchor)
+	public void Anchor(Vector anchorLocation)
 	{
-		this.anchor = anchor;
+		this.anchorLocation = anchorLocation;
 		if (selection.Count > 0)
 		{
 			board.ResetPieces(selection);
+			selection.Clear();
 		}
 		else if (potentialSelection.Count > 0)
 		{
 			board.ResetPieces(potentialSelection);
+			potentialSelection.Clear();
 		}
-		if (anchor == null)
-		{
-			Debug.Log("asdlfk");
-		}
-
-		board.GetPotentialSelection(anchor, potentialSelection);
+		board.GetSpace(anchorLocation).piece.anchor = true;
+		potentialSelection = board.GetPotentialSelection(anchorLocation);
 		if (potentialSelection.Count == 1)
 		{
-			CompleteSelection(anchor);
+			CompleteSelection(anchorLocation);
 		}
 	}
 }

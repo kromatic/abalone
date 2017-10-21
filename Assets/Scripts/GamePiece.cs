@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class GamePiece : MonoBehaviour
 {
-	public Location location;
+	public Vector location;
 	public string color = "black";
 	public bool anchor = false;
 	public bool selectable = false;
@@ -19,12 +19,11 @@ public class GamePiece : MonoBehaviour
 		var game = GameObject.Find("Game").GetComponent<Game>();
 		if (selectable)
 		{
-			game.CompleteSelection(this);
+			game.CompleteSelection(location);
 		}
 		else
 		{
-			anchor = true;
-			game.Anchor(this);
+			game.Anchor(location);
 		}
 	}
 
@@ -38,12 +37,12 @@ public class GamePiece : MonoBehaviour
 	{
 		selectable = true;
 		GetComponent<SpriteRenderer>().color = (anchor == true) ? anchorColor : selectableColor;
-
 	}
 
 	public void Clear()
 	{
 		selected = false; selectable = false; anchor = false;
+		Debug.Log("here");
 		GetComponent<SpriteRenderer>().color = normalColor;
 	}
 }

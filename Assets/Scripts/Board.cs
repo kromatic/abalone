@@ -5,45 +5,47 @@ using UnityEngine;
 
 public class Board : MonoBehaviour
 {
-	private List<List<Transform>> board;
+	private List<List<Space>> board;
 	public Transform spacePrefab;
 	public Transform blackPrefab;
 	public Transform whitePrefab;
+	public float paddingFactor = 1.1f;
+	private static int height = 9;
+	private static List<int> rowLengths = new List<int> {5, 6, 7, 8, 9, 8, 7, 6, 5};
 
-	private Dictionary<string, Location> directions = new Dictionary<string, Location>
+	private static Dictionary<string, Vector> directions = new Dictionary<string, Vector>
 	{
-		{"NW", new Location(-1, -1)},
-		{"NE", new Location(-1,  0)},
-		{"E",  new Location(0,   1)},
-		{"SE", new Location(1,   1)},
-		{"SW", new Location(1,   0)},
-		{"W",  new Location(0,  -1)}
+		{"NW", new Vector(-1, -1)},
+		{"NE", new Vector(-1,  0)},
+		{"E",  new Vector(0,   1)},
+		{"SE", new Vector(1,   1)},
+		{"SW", new Vector(1,   0)},
+		{"W",  new Vector(0,  -1)}
 	};
 
 	void Awake()
 	{
 		// first create spaces
-		board = new List<List<Transform>>();
-		var rowLengths = new List<int> {5, 6, 7, 8, 9, 8, 7, 6, 5};
-		var c = spacePrefab.localScale.x * transform.localScale.x * 1.1f;
+		board = new List<List<Space>>();
+		var c = spacePrefab.localScale.x * transform.localScale.x * paddingFactor;
 		var r = c / 2;
-		for (int i = 0; i < 9; i++)
+		for (int i = 0; i < height; i++)
 		{
-			var len = rowLengths[i];
-			var row = new List<Transform>();
-			var x = (9 - len) * r  - 4 * c;
-			var y = (4 - i) * c;
-			for (int j = 0; j < len; j++)
+			var length = rowLengths[i];
+			var row = new List<Space>();
+			var x = (height - length) * r  - (height / 2) * c;
+			var y = (height / 2 - i) * c;
+			for (int j = 0; j < length; j++)
 			{
 				var position = new Vector3(x, y, 0);
-				var cell = Instantiate(spacePrefab, position, Quaternion.identity, this.transform);
-				row.Add(cell);
+				var space = Instantiate(spacePrefab, position, Quaternion.identity, this.transform).GetComponent<Space>();
+				row.Add(space);
 				x += c;
 			}
 			board.Add(row);
 		}
 
-		// then set up pieces in initial Locations
+		// then set up pieces in initial locations
 		foreach (int i in new List<int> {0, 1, 2, 6, 7, 8})
 		{
 			var piecePrefab = (i < 3) ? whitePrefab : blackPrefab;
@@ -53,79 +55,78 @@ public class Board : MonoBehaviour
 				{
 					continue;
 				}
-				var piece = Instantiate(piecePrefab, board[i][j]).GetComponent<GamePiece>();
-				piece.location = new Location(i, j);
+				var piece = Instantiate(piecePrefab, board[i][j].transform).GetComponent<GamePiece>();
+				piece.location = new Vector(i, j);
+				board[i][j].piece = piece;
 			}
 		}
 	}
 
-	public void ResetPieces(List<GamePiece> pieces)
+	public void ResetPieces(List<Vector> locations)
 	{
-		foreach(var piece in pieces)
+		foreach(var loc in locations)
 		{
-			piece.Clear();
-		}
-		pieces.Clear();
-	}
-
-	public void Select(List<GamePiece> selection)
-	{
-		foreach(var piece in selection)
-		{
-			piece.Select();
+			GetSpace(loc).piece.Clear();
 		}
 	}
 
-	public void GetPotentialSelection(GamePiece anchor, List<GamePiece> potentialSelection)
+	public void Select(List<Vector> selection)
 	{
+		foreach(var loc in selection)
+		{
+			GetSpace(loc).piece.Select();
+		}
+	}
+
+	public List<Vector> GetPotentialSelection(Vector anchorLocation)
+	{
+		var res = new List<Vector>();
+		var anchor = GetSpace(anchorLocation).piece;
 		anchor.MarkSelectable();
-		potentialSelection.Add(anchor);
+		res.Add(anchorLocation);
 		foreach (var dir in directions.Keys)
 		{
-			var cur = anchor;
+			var cur = anchorLocation;
 			for(int c = 1; c < 3; c++)
 			{
 				// Debug.Log("trying to get neighbor");
-				cur = GetNeighbor(cur, dir);
-				if (cur == null) break;
-				if (cur.color != anchor.color) break;
-				cur.MarkSelectable();
-				potentialSelection.Add(cur);
+				cur = GetNeighborLocation(cur, dir);
+				if (!ValidLocation(cur)) break;
+				var curSpace = GetSpace(cur);
+				if (curSpace.Empty()) break;
+				if (curSpace.piece.color != anchor.color) break;
+				curSpace.piece.MarkSelectable();
+				res.Add(cur);
 			}
 		}
+		return res;
 	}
 
-	public GamePiece GetPiece(Location loc)
+	public Space GetSpace(Vector loc)
 	{
-		return board[loc.x][loc.y].GetChild(0).GetComponent<GamePiece>();
+		return board[loc.x][loc.y];
 	}
 
-	private GamePiece GetNeighbor(GamePiece piece, string dir)
+	private static Vector GetNeighborLocation(Vector location, string dir)
 	{
-		var vector = directions[dir];
-		int deltaX = (int)vector.x, deltaY = (int)vector.y;
-		int i = piece.location.x, j = piece.location.y;
-		if (i == 4 && dir[0] == 'S')
+		var delta = directions[dir];
+		if (location.x == 4 && dir[0] == 'S')
 		{
-			deltaY--;
+			delta.y--;
 		}
-		else if (i > 4 && dir.Length == 2)
+		else if (location.x > 4 && dir.Length == 2)
 		{
-			deltaY += (dir[0] == 'N') ? 1 : -1;
+			delta.y += (dir[0] == 'N') ? 1 : -1;
 		}
-		int x = i + deltaX, y = j + deltaY;
-		if (x < 0 || x == board.Count || y < 0 || y == board[x].Count)
-		{
-			return null;
-		}
-		if (board[x][y].childCount == 0)
-		{
-			return null;
-		}
-		return GetPiece(new Location(x, y));
+		return location + delta;
 	}
 
-	public List<string> GetMoves(List<GamePiece> selection)
+	private static bool ValidLocation(Vector loc)
+	{
+		return 0 <= loc.x && loc.x < height && 0 <= loc.y && loc.y < rowLengths[loc.x]; 
+	}
+
+	public List<string> GetMoves(List<Vector> selection)
 	{
 		var res = new List<string>();
 		foreach(var dir in directions.Keys)
@@ -135,11 +136,10 @@ public class Board : MonoBehaviour
 				res.Add(dir);
 			}
 		}
-
 		return res;
 	}
 
-	private bool CheckMove(List<GamePiece> selection, string dir)
+	private bool CheckMove(List<Vector> selection, string dir)
 	{
 		foreach (var piece in selection)
 		{
@@ -150,12 +150,48 @@ public class Board : MonoBehaviour
 
 }
 
-public struct Location
+public struct Vector
 {
 	public int x, y;
 
-	public Location(int x, int y)
+	public Vector(int x, int y)
 	{
 		this.x = x; this.y = y;
+	}
+
+	public static Vector operator +(Vector v1, Vector v2)
+	{
+		return new Vector(v1.x + v2.x, v1.y + v2.y);
+	}
+
+	public static Vector Delta(Vector end, Vector start)
+	{
+		return new Vector(Math.Sign(end.x - start.x), Math.Sign(end.y - start.y));
+	}
+
+	public static Vector Average(Vector v1, Vector v2)
+	{
+		return new Vector((v1.x + v2.x) / 2, (v1.y + v2.y) / 2);
+	}
+
+	public static bool operator ==(Vector v1, Vector v2)
+	{
+		return v1.x == v2.x && v1.y == v2.y;
+	}
+
+	public static bool operator !=(Vector v1, Vector v2)
+	{
+		return v1.x != v2.x || v1.y != v2.y;
+	}
+
+	public override bool Equals(object o)
+	{
+		var v = (Vector)o;
+		return x == v.x && y == v.y;
+	}
+
+	public override int GetHashCode()
+	{
+		return x + y;
 	}
 }
