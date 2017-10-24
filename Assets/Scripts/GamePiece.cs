@@ -7,14 +7,14 @@ public class GamePiece : MonoBehaviour
 	public Vector location;
 	public string color = "black";
 	public bool anchor = false;
-	private bool selectable = false;
-	private int selectableDistance = -1;
-	private string selectableDirection = null;
-	private bool selected = false;
 	public Color normalColor;
 	public Color selectedColor;
 	public Color selectableColor;
 	public Color anchorColor;
+	private bool selectable = false;
+	private int selectableDistance = -1;
+	private string selectableDirection = null;
+	private bool selected = false;
 
 	void OnMouseDown()
 	{
@@ -47,7 +47,6 @@ public class GamePiece : MonoBehaviour
 	{
 		selected = false; selectable = false; anchor = false;
 		selectableDistance = -1; selectableDirection = null;
-		// Debug.Log("here");
 		GetComponent<SpriteRenderer>().color = normalColor;
 	}
 }

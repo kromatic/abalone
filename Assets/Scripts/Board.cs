@@ -5,11 +5,11 @@ using UnityEngine;
 
 public class Board : MonoBehaviour
 {
-	private List<List<Space>> board;
 	public Transform spacePrefab;
 	public Transform blackPrefab;
 	public Transform whitePrefab;
 	public float paddingFactor = 1.1f;
+	private List<List<Space>> board;
 	private static int height = 9;
 	private static List<int> rowLengths = new List<int> {5, 6, 7, 8, 9, 8, 7, 6, 5};
 
@@ -159,6 +159,19 @@ public class Board : MonoBehaviour
 			continue;
 		}
 		return true;
+	}
+
+	private static bool SameAxis(string dir1, string dir2)
+	{
+		// sort strings if necessary
+		if (string.Compare(dir1, dir2) > 0)
+		{
+			var temp = dir1; dir1 = dir2; dir2 = temp;
+		}
+		if (dir1 == "E" && dir2 == "W") return true;
+		if (dir1 == "NW" && dir2 == "SE") return true;
+		if (dir1 == "NE" && dir2 == "SW") return true;
+		return false;
 	}
 
 }

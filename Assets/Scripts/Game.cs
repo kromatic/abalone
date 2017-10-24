@@ -22,6 +22,7 @@ public class Game : MonoBehaviour
 	public void CompleteSelection(int distance, string dir)
 	{
 		selection = Board.GetLocations(anchorLocation, distance, dir);
+		board.ResetPieces(potentialSelection);
 		board.Select(selection);
 		potentialMoves = board.GetMoves(selection, selectionDirection);
 	}
@@ -43,7 +44,7 @@ public class Game : MonoBehaviour
 		potentialSelection = board.GetPotentialSelection(anchorLocation);
 		if (potentialSelection.Count == 1)
 		{
-			CompleteSelection(anchorLocation);
+			CompleteSelection(0, null);
 		}
 	}
 }
