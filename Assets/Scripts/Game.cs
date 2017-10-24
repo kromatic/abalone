@@ -10,6 +10,7 @@ public class Game : MonoBehaviour
 	private Board board;
 	private Vector anchorLocation;
 	private List<Vector> selection = new List<Vector>();
+	private string selectionDirection = null;
 	private List<Vector> potentialSelection = new List<Vector>();
 	private List<string> potentialMoves = new List<string>();
 
@@ -18,19 +19,11 @@ public class Game : MonoBehaviour
 		board = GameObject.Find("Board").GetComponent<Board>();
 	}
 
-	public void CompleteSelection(Vector loc)
+	public void CompleteSelection(int distance, string dir)
 	{
-		selection.Add(anchorLocation);
-		var middle = anchorLocation + Vector.Delta(loc, anchorLocation);
-		if (middle != loc)
-		{
-			selection.Add(middle);
-		}
-		selection.Add(loc);
-		board.ResetPieces(potentialSelection);
-		potentialSelection.Clear();
+		selection = Board.GetLocations(anchorLocation, distance, dir);
 		board.Select(selection);
-		potentialMoves = board.GetMoves(selection);
+		potentialMoves = board.GetMoves(selection, selectionDirection);
 	}
 
 	public void Anchor(Vector anchorLocation)

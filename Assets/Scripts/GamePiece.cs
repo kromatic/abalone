@@ -7,8 +7,10 @@ public class GamePiece : MonoBehaviour
 	public Vector location;
 	public string color = "black";
 	public bool anchor = false;
-	public bool selectable = false;
-	public bool selected = false;
+	private bool selectable = false;
+	private int selectableDistance = -1;
+	private string selectableDirection = null;
+	private bool selected = false;
 	public Color normalColor;
 	public Color selectedColor;
 	public Color selectableColor;
@@ -19,7 +21,7 @@ public class GamePiece : MonoBehaviour
 		var game = GameObject.Find("Game").GetComponent<Game>();
 		if (selectable)
 		{
-			game.CompleteSelection(location);
+			game.CompleteSelection(selectableDistance, selectableDirection);
 		}
 		else
 		{
@@ -33,16 +35,19 @@ public class GamePiece : MonoBehaviour
 		GetComponent<SpriteRenderer>().color = selectedColor;
 	}
 
-	public void MarkSelectable()
+	public void MarkSelectable(int distance, string dir)
 	{
 		selectable = true;
+		selectableDistance = distance;
+		selectableDirection = dir;
 		GetComponent<SpriteRenderer>().color = (anchor == true) ? anchorColor : selectableColor;
 	}
 
 	public void Clear()
 	{
 		selected = false; selectable = false; anchor = false;
-		Debug.Log("here");
+		selectableDistance = -1; selectableDirection = null;
+		// Debug.Log("here");
 		GetComponent<SpriteRenderer>().color = normalColor;
 	}
 }

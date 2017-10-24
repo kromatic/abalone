@@ -82,7 +82,7 @@ public class Board : MonoBehaviour
 	{
 		var res = new List<Vector>();
 		var anchor = GetSpace(anchorLocation).piece;
-		anchor.MarkSelectable();
+		anchor.MarkSelectable(0, null);
 		res.Add(anchorLocation);
 		foreach (var dir in directions.Keys)
 		{
@@ -95,7 +95,7 @@ public class Board : MonoBehaviour
 				var curSpace = GetSpace(cur);
 				if (curSpace.Empty()) break;
 				if (curSpace.piece.color != anchor.color) break;
-				curSpace.piece.MarkSelectable();
+				curSpace.piece.MarkSelectable(c, dir);
 				res.Add(cur);
 			}
 		}
@@ -105,6 +105,18 @@ public class Board : MonoBehaviour
 	public Space GetSpace(Vector loc)
 	{
 		return board[loc.x][loc.y];
+	}
+
+	public static List<Vector> GetLocations(Vector start, int distance, string dir)
+	{
+		var res = new List<Vector>();
+		var cur = start; res.Add(cur);
+		for (int c = 0; c < distance; c++)
+		{
+			cur = GetNeighborLocation(cur, dir);
+			res.Add(cur);
+		}
+		return res;
 	}
 
 	private static Vector GetNeighborLocation(Vector location, string dir)
@@ -126,12 +138,12 @@ public class Board : MonoBehaviour
 		return 0 <= loc.x && loc.x < height && 0 <= loc.y && loc.y < rowLengths[loc.x]; 
 	}
 
-	public List<string> GetMoves(List<Vector> selection)
+	public List<string> GetMoves(List<Vector> selection, string selectionDirection)
 	{
 		var res = new List<string>();
 		foreach(var dir in directions.Keys)
 		{
-			if (CheckMove(selection, dir))
+			if (CheckMove(selection, selectionDirection, dir))
 			{
 				res.Add(dir);
 			}
@@ -139,9 +151,10 @@ public class Board : MonoBehaviour
 		return res;
 	}
 
-	private bool CheckMove(List<Vector> selection, string dir)
+	private bool CheckMove(List<Vector> selection, string selectionDir, string dir)
 	{
-		foreach (var piece in selection)
+		var bla = selection[-1];
+		foreach (var loc in selection)
 		{
 			continue;
 		}
@@ -162,6 +175,11 @@ public struct Vector
 	public static Vector operator +(Vector v1, Vector v2)
 	{
 		return new Vector(v1.x + v2.x, v1.y + v2.y);
+	}
+
+	public static Vector operator -(Vector v1, Vector v2)
+	{
+		return new Vector(v1.x - v2.x, v1.y - v2.y);
 	}
 
 	public static Vector Delta(Vector end, Vector start)
