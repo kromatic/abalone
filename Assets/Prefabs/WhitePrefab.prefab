@@ -70,10 +70,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   color: white
   anchor: 0
-  selectable: 0
-  selected: 0
   normalColor: {r: 1, g: 1, b: 1, a: 1}
-  selectedColor: {r: 1, g: 0.625, b: 0.63275856, a: 1}
+  selectedColor: {r: 0.8088235, g: 0.5828287, b: 0.58750445, a: 1}
   selectableColor: {r: 0.5631488, g: 0.75308436, b: 0.9117647, a: 1}
   anchorColor: {r: 0.5566609, g: 0.9705882, b: 0.7136678, a: 1}
 --- !u!212 &212488458905641478

@@ -10,8 +10,10 @@ public class MoveButton : MonoBehaviour
 
 	void OnMouseDown()
 	{
+		Debug.Log("pressing");
 		if (available)
 		{
+			Debug.Log("im trying to move");
 			var game = GameObject.Find("Game").GetComponent<Game>();
 			game.MakeMove(direction);
 		}
@@ -20,7 +22,8 @@ public class MoveButton : MonoBehaviour
 	public void MakeAvailable()
 	{
 		available = true;
-		ChangeAlpha(255);
+		Debug.Log("making button clickable");
+		ChangeAlpha(1);
 	}
 
 	public void MakeUnavailable()

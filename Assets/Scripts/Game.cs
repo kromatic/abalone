@@ -23,10 +23,13 @@ public class Game : MonoBehaviour
 	{
 		selection = Board.GetColumn(anchorLocation, distance, dir);
 		board.ResetPieces(potentialSelection);
+		potentialSelection.Clear();
 		board.Select(selection);
 		potentialMoves = board.GetMoves(selection, selectionDirection);
+		Debug.Log(potentialMoves.Count);
 		foreach (var moveDirection in potentialMoves.Keys)
 		{
+			Debug.Log("making available" + moveDirection);
 			var button = GameObject.Find("Move" + moveDirection).GetComponent<MoveButton>();
 			button.MakeAvailable();
 		}
@@ -34,11 +37,11 @@ public class Game : MonoBehaviour
 
 	public void MakeMove(string dir)
 	{
-		board.Move(selection, dir);
-		// board.Move(potentialMoves[dir], dir);
 		board.ResetPieces(selection);
+		board.Move(selection, dir);
 		selection.Clear();
-		foreach (var direction in potentialMoves.keys)
+		board.Move(potentialMoves[dir], dir);
+		foreach (var direction in potentialMoves.Keys)
 		{
 			var button = GameObject.Find("Move" + direction).GetComponent<MoveButton>();
 			button.MakeUnavailable();

@@ -14,7 +14,7 @@ public class GamePiece : MonoBehaviour
 	private bool selectable = false;
 	private int selectableDistance = -1;
 	private string selectableDirection = null;
-	private bool selected = false;
+	// private bool selected = false;
 
 	void OnMouseDown()
 	{
@@ -31,7 +31,7 @@ public class GamePiece : MonoBehaviour
 
 	public void Select()
 	{
-		selected = true;
+		// selected = true;
 		GetComponent<SpriteRenderer>().color = selectedColor;
 	}
 
@@ -45,7 +45,7 @@ public class GamePiece : MonoBehaviour
 
 	public void Clear()
 	{
-		selected = false; selectable = false; anchor = false;
+		selectable = false; anchor = false; // selected = false;
 		selectableDistance = -1; selectableDirection = null;
 		GetComponent<SpriteRenderer>().color = normalColor;
 	}

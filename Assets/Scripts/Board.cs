@@ -221,7 +221,13 @@ public class Board : MonoBehaviour
 		}
 		var neighbor = GetSpace(neighborLocation);
 		piece.transform.position = neighbor.transform.position;
+		piece.location = neighborLocation;
+		Debug.Log("new x" + neighborLocation.x.ToString());
+		Debug.Log("new y" + neighborLocation.y.ToString());
+		Debug.Log("one");
 		piece.transform.parent = neighbor.transform;
+		neighbor.piece = piece;
+		Debug.Log("two");
 	}
 
 }
