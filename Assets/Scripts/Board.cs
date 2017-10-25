@@ -159,9 +159,31 @@ public class Board : MonoBehaviour
 			var enemyColor = (GetSpace(selection[0]).piece.color == "black") ? "white" : "black";
 			var selectionEdge = (selectionDirection == dir) ? selection[selection.Count - 1] : selection[0];
 			var enemyColumnStart = GetNeighborLocation(selectionEdge, dir);
-			return Sumito(enemyColumnStart, dir, enemyColor, selection.Count, enemyColumn);
+			return Sumito(enemyColumnStart, dir, enemyColor, selection.Count - 1, enemyColumn);
 		}
-		
+		foreach (var loc in selection)
+		{
+			var neighbor = GetSpace(GetNeighborLocation(loc, dir));
+			if (!neighbor.Empty()) return false;
+		}
+		return true;
+	}
+
+	private bool Sumito(Vector start, string dir, string color, int bound, List<Vector> column)
+	{
+		var cur = start;
+		while (column.Count < bound)
+		{
+			if (!ValidLocation(cur)) return true; // edge of board - ok
+			var space = GetSpace(cur);
+			if (space.Empty()) return true; // empty space - ok
+			if (space.piece.color != color) return false; // enemy piece in sequence - not ok
+			// remaining case: piece of this color
+			column.Add(cur);
+			cur = GetNeighborLocation(cur, dir);
+		}
+		// column of maximum possible size
+		return !ValidLocation(cur) || GetSpace(cur).Empty();
 	}
 
 	private static bool SameAxis(string dir1, string dir2)
