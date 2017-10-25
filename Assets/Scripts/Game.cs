@@ -12,7 +12,7 @@ public class Game : MonoBehaviour
 	private List<Vector> selection = new List<Vector>();
 	private string selectionDirection = null;
 	private List<Vector> potentialSelection = new List<Vector>();
-	private List<string> potentialMoves = new List<string>();
+	private Dictionary<string, List<Vector>> potentialMoves;
 
 	void Awake()
 	{
@@ -21,11 +21,12 @@ public class Game : MonoBehaviour
 
 	public void CompleteSelection(int distance, string dir)
 	{
-		selection = Board.GetLocations(anchorLocation, distance, dir);
+		selection = Board.GetColumn(anchorLocation, distance, dir);
 		board.ResetPieces(potentialSelection);
 		board.Select(selection);
 		potentialMoves = board.GetMoves(selection, selectionDirection);
 	}
+
 
 	public void Anchor(Vector anchorLocation)
 	{
@@ -34,6 +35,7 @@ public class Game : MonoBehaviour
 		{
 			board.ResetPieces(selection);
 			selection.Clear();
+
 		}
 		else if (potentialSelection.Count > 0)
 		{

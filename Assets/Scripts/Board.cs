@@ -107,14 +107,14 @@ public class Board : MonoBehaviour
 		return board[loc.x][loc.y];
 	}
 
-	public static List<Vector> GetLocations(Vector start, int distance, string dir)
+	public static List<Vector> GetColumn(Vector start, int distance, string dir)
 	{
 		var res = new List<Vector>();
-		var cur = start; res.Add(cur);
-		for (int c = 0; c < distance; c++)
+		var cur = start;
+		for (int c = 0; c <= distance; c++)
 		{
-			cur = GetNeighborLocation(cur, dir);
 			res.Add(cur);
+			cur = GetNeighborLocation(cur, dir);
 		}
 		return res;
 	}
@@ -138,27 +138,30 @@ public class Board : MonoBehaviour
 		return 0 <= loc.x && loc.x < height && 0 <= loc.y && loc.y < rowLengths[loc.x]; 
 	}
 
-	public List<string> GetMoves(List<Vector> selection, string selectionDirection)
+	public Dictionary<string, List<Vector>> GetMoves(List<Vector> selection, string selectionDirection)
 	{
-		var res = new List<string>();
+		var moves = new Dictionary<string, List<Vector>>();
 		foreach(var dir in directions.Keys)
 		{
-			if (CheckMove(selection, selectionDirection, dir))
+			var enemyColumn = new List<Vector>();
+			if (CheckMove(selection, selectionDirection, dir, enemyColumn))
 			{
-				res.Add(dir);
+				moves.Add(dir, enemyColumn);
 			}
 		}
-		return res;
+		return moves;
 	}
 
-	private bool CheckMove(List<Vector> selection, string selectionDir, string dir)
+	private bool CheckMove(List<Vector> selection, string selectionDirection, string dir, List<Vector> enemyColumn)
 	{
-		var bla = selection[-1];
-		foreach (var loc in selection)
+		if (SameAxis(selectionDirection, dir))
 		{
-			continue;
+			var enemyColor = (GetSpace(selection[0]).piece.color == "black") ? "white" : "black";
+			var selectionEdge = (selectionDirection == dir) ? selection[selection.Count - 1] : selection[0];
+			var enemyColumnStart = GetNeighborLocation(selectionEdge, dir);
+			return Sumito(enemyColumnStart, dir, enemyColor, selection.Count, enemyColumn);
 		}
-		return true;
+		
 	}
 
 	private static bool SameAxis(string dir1, string dir2)
