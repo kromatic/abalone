@@ -27,7 +27,7 @@ public class Game : MonoBehaviour
 		potentialMoves = board.GetMoves(selection, selectionDirection);
 		foreach (var moveDirection in potentialMoves.Keys)
 		{
-			var button = GameObject.Find($"Move{moveDirection}").GetComponent<MoveButton>();
+			var button = GameObject.Find("Move" + moveDirection).GetComponent<MoveButton>();
 			button.MakeAvailable();
 		}
 	}
@@ -40,7 +40,7 @@ public class Game : MonoBehaviour
 		selection.Clear();
 		foreach (var direction in potentialMoves.keys)
 		{
-			var button = GameObject.Find($"Move{direction}").GetComponent<MoveButton>();
+			var button = GameObject.Find("Move" + direction).GetComponent<MoveButton>();
 			button.MakeUnavailable();
 		}
 	}
