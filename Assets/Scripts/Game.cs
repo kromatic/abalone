@@ -25,6 +25,24 @@ public class Game : MonoBehaviour
 		board.ResetPieces(potentialSelection);
 		board.Select(selection);
 		potentialMoves = board.GetMoves(selection, selectionDirection);
+		foreach (var moveDirection in potentialMoves.Keys)
+		{
+			var button = GameObject.Find($"Move{moveDirection}").GetComponent<MoveButton>();
+			button.MakeAvailable();
+		}
+	}
+
+	public void MakeMove(string dir)
+	{
+		board.Move(selection, dir);
+		// board.Move(potentialMoves[dir], dir);
+		board.ResetPieces(selection);
+		selection.Clear();
+		foreach (var direction in potentialMoves.keys)
+		{
+			var button = GameObject.Find($"Move{direction}").GetComponent<MoveButton>();
+			button.MakeUnavailable();
+		}
 	}
 
 

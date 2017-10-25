@@ -40,7 +40,7 @@ public class GamePiece : MonoBehaviour
 		selectable = true;
 		selectableDistance = distance;
 		selectableDirection = dir;
-		GetComponent<SpriteRenderer>().color = (anchor == true) ? anchorColor : selectableColor;
+		GetComponent<SpriteRenderer>().color = (anchor == true) ? selectedColor : selectableColor;
 	}
 
 	public void Clear()

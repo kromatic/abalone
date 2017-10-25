@@ -12,6 +12,7 @@ public class Board : MonoBehaviour
 	private List<List<Space>> board;
 	private static int height = 9;
 	private static List<int> rowLengths = new List<int> {5, 6, 7, 8, 9, 8, 7, 6, 5};
+	private float c;
 
 	private static Dictionary<string, Vector> directions = new Dictionary<string, Vector>
 	{
@@ -27,7 +28,7 @@ public class Board : MonoBehaviour
 	{
 		// first create spaces
 		board = new List<List<Space>>();
-		var c = spacePrefab.localScale.x * transform.localScale.x * paddingFactor;
+		c = spacePrefab.localScale.x * transform.localScale.x * paddingFactor;
 		var r = c / 2;
 		for (int i = 0; i < height; i++)
 		{
@@ -163,8 +164,8 @@ public class Board : MonoBehaviour
 		}
 		foreach (var loc in selection)
 		{
-			var neighbor = GetSpace(GetNeighborLocation(loc, dir));
-			if (!neighbor.Empty()) return false;
+			var neighborLocation = GetNeighborLocation(loc, dir);
+			if (!ValidLocation(neighborLocation) || !GetSpace(neighborLocation).Empty()) return false;
 		}
 		return true;
 	}
@@ -197,6 +198,30 @@ public class Board : MonoBehaviour
 		if (dir1 == "NW" && dir2 == "SE") return true;
 		if (dir1 == "NE" && dir2 == "SW") return true;
 		return false;
+	}
+
+	public void Move(List<Vector> selection, string dir)
+	{
+		foreach(var loc in selection)
+		{
+			MovePiece(loc, dir);
+		}
+	}
+
+	private void MovePiece(Vector loc, string dir)
+	{
+		var space = GetSpace(loc);
+		var piece = space.piece;
+		space.piece = null;
+		var neighborLocation = GetNeighborLocation(loc, dir);
+		if (!ValidLocation(neighborLocation))
+		{
+			GameObject.Destroy(piece.gameObject);
+			return;
+		}
+		var neighbor = GetSpace(neighborLocation);
+		piece.transform.position = neighbor.transform.position;
+		piece.transform.parent = neighbor.transform;
 	}
 
 }
