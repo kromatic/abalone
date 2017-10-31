@@ -12,7 +12,7 @@ public class Board : MonoBehaviour
 	private List<List<Space>> board;
 	private static int height = 9;
 	private static List<int> rowLengths = new List<int> {5, 6, 7, 8, 9, 8, 7, 6, 5};
-	private float c;
+	private float spaceDiameter;
 
 	private static Dictionary<string, Vector> directions = new Dictionary<string, Vector>
 	{
@@ -28,20 +28,20 @@ public class Board : MonoBehaviour
 	{
 		// first create spaces
 		board = new List<List<Space>>();
-		c = spacePrefab.localScale.x * transform.localScale.x * paddingFactor;
-		var r = c / 2;
+		spaceDiameter = spacePrefab.localScale.x * transform.localScale.x * paddingFactor;
+		var spaceRadius = spaceDiameter / 2;
 		for (int i = 0; i < height; i++)
 		{
 			var length = rowLengths[i];
 			var row = new List<Space>();
-			var x = (height - length) * r  - (height / 2) * c;
-			var y = (height / 2 - i) * c;
+			var x = (height - length) * spaceRadius  - (height / 2) * spaceDiameter;
+			var y = (height / 2 - i) * spaceDiameter;
 			for (int j = 0; j < length; j++)
 			{
 				var position = new Vector3(x, y, 0);
 				var space = Instantiate(spacePrefab, position, Quaternion.identity, this.transform).GetComponent<Space>();
 				row.Add(space);
-				x += c;
+				x += spaceDiameter;
 			}
 			board.Add(row);
 		}
@@ -83,12 +83,12 @@ public class Board : MonoBehaviour
 	{
 		var res = new List<Vector>();
 		var anchor = GetSpace(anchorLocation).piece;
-		anchor.MarkSelectable(0, null);
+		anchor.MarkSelectable(0, "");
 		res.Add(anchorLocation);
 		foreach (var dir in directions.Keys)
 		{
 			var cur = anchorLocation;
-			for(int c = 1; c < 3; c++)
+			for(var d = 1; d < 3; d++)
 			{
 				// Debug.Log("trying to get neighbor");
 				cur = GetNeighborLocation(cur, dir);
@@ -96,7 +96,7 @@ public class Board : MonoBehaviour
 				var curSpace = GetSpace(cur);
 				if (curSpace.Empty()) break;
 				if (curSpace.piece.color != anchor.color) break;
-				curSpace.piece.MarkSelectable(c, dir);
+				curSpace.piece.MarkSelectable(d, dir);
 				res.Add(cur);
 			}
 		}
@@ -112,7 +112,7 @@ public class Board : MonoBehaviour
 	{
 		var res = new List<Vector>();
 		var cur = start;
-		for (int c = 0; c <= distance; c++)
+		for (int d = 0; d <= distance; d++)
 		{
 			res.Add(cur);
 			cur = GetNeighborLocation(cur, dir);
@@ -162,6 +162,8 @@ public class Board : MonoBehaviour
 			var enemyColumnStart = GetNeighborLocation(selectionEdge, dir);
 			return Sumito(enemyColumnStart, dir, enemyColor, selection.Count - 1, enemyColumn);
 		}
+
+		// if a side step move, just make sure target spaces are empty
 		foreach (var loc in selection)
 		{
 			var neighborLocation = GetNeighborLocation(loc, dir);
@@ -183,7 +185,7 @@ public class Board : MonoBehaviour
 			column.Add(cur);
 			cur = GetNeighborLocation(cur, dir);
 		}
-		// column of maximum possible size
+		// we got an opposing column of maximum possible size
 		return !ValidLocation(cur) || GetSpace(cur).Empty();
 	}
 
@@ -222,12 +224,12 @@ public class Board : MonoBehaviour
 		var neighbor = GetSpace(neighborLocation);
 		piece.transform.position = neighbor.transform.position;
 		piece.location = neighborLocation;
-		Debug.Log("new x" + neighborLocation.x.ToString());
-		Debug.Log("new y" + neighborLocation.y.ToString());
-		Debug.Log("one");
+		// Debug.Log("new x" + neighborLocation.x.ToString());
+		// Debug.Log("new y" + neighborLocation.y.ToString());
+		// Debug.Log("one");
 		piece.transform.parent = neighbor.transform;
 		neighbor.piece = piece;
-		Debug.Log("two");
+		// Debug.Log("two");
 	}
 
 }
@@ -241,44 +243,44 @@ public struct Vector
 		this.x = x; this.y = y;
 	}
 
-	public static Vector operator +(Vector v1, Vector v2)
-	{
-		return new Vector(v1.x + v2.x, v1.y + v2.y);
-	}
+	//public static Vector operator +(Vector v1, Vector v2)
+	//{
+	//	return new Vector(v1.x + v2.x, v1.y + v2.y);
+	//}
 
-	public static Vector operator -(Vector v1, Vector v2)
-	{
-		return new Vector(v1.x - v2.x, v1.y - v2.y);
-	}
+	//public static Vector operator -(Vector v1, Vector v2)
+	//{
+	//	return new Vector(v1.x - v2.x, v1.y - v2.y);
+	//}
 
-	public static Vector Delta(Vector end, Vector start)
-	{
-		return new Vector(Math.Sign(end.x - start.x), Math.Sign(end.y - start.y));
-	}
+	//public static Vector Delta(Vector end, Vector start)
+	//{
+	//	return new Vector(Math.Sign(end.x - start.x), Math.Sign(end.y - start.y));
+	//}
 
-	public static Vector Average(Vector v1, Vector v2)
-	{
-		return new Vector((v1.x + v2.x) / 2, (v1.y + v2.y) / 2);
-	}
+	//public static Vector Average(Vector v1, Vector v2)
+	//{
+	//	return new Vector((v1.x + v2.x) / 2, (v1.y + v2.y) / 2);
+	//}
 
-	public static bool operator ==(Vector v1, Vector v2)
-	{
-		return v1.x == v2.x && v1.y == v2.y;
-	}
+	//public static bool operator ==(Vector v1, Vector v2)
+	//{
+	//	return v1.x == v2.x && v1.y == v2.y;
+	//}
 
-	public static bool operator !=(Vector v1, Vector v2)
-	{
-		return v1.x != v2.x || v1.y != v2.y;
-	}
+	//public static bool operator !=(Vector v1, Vector v2)
+	//{
+	//	return v1.x != v2.x || v1.y != v2.y;
+	//}
 
-	public override bool Equals(object o)
-	{
-		var v = (Vector)o;
-		return x == v.x && y == v.y;
-	}
+	//public override bool Equals(object o)
+	//{
+	//	var v = (Vector)o;
+	//	return x == v.x && y == v.y;
+	//}
 
-	public override int GetHashCode()
-	{
-		return x + y;
-	}
+	//public override int GetHashCode()
+	//{
+	//	return x + y;
+	//}
 }
