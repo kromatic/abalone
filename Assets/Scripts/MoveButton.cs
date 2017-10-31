@@ -19,14 +19,14 @@ public class MoveButton : MonoBehaviour
 		}
 	}
 
-	public void MakeAvailable()
+	public void Activate()
 	{
 		available = true;
 		Debug.Log("making button clickable");
 		ChangeAlpha(1);
 	}
 
-	public void MakeUnavailable()
+	public void Deactivate()
 	{
 		available = false;
 		ChangeAlpha(unavailableAlpha);
