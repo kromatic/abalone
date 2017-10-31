@@ -5,7 +5,7 @@ using UnityEngine;
 public class GamePiece : MonoBehaviour
 {
 	public Vector location;
-	public string color = "black";
+	public string color;
 	public bool anchor = false;
 	public Color normalColor;
 	public Color selectedColor;
@@ -13,7 +13,7 @@ public class GamePiece : MonoBehaviour
 	public Color anchorColor;
 	private bool selectable = false;
 	private int selectableDistance = -1;
-	private string selectableDirection = null;
+	private string selectableDirection = "";
 	// private bool selected = false;
 
 	void OnMouseDown()
@@ -46,7 +46,7 @@ public class GamePiece : MonoBehaviour
 	public void Clear()
 	{
 		selectable = false; anchor = false; // selected = false;
-		selectableDistance = -1; selectableDirection = null;
+		selectableDistance = -1; selectableDirection = "";
 		GetComponent<SpriteRenderer>().color = normalColor;
 	}
 }
