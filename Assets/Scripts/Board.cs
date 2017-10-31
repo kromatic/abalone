@@ -141,6 +141,7 @@ public class Board : MonoBehaviour
 
 	public Dictionary<string, List<Vector>> GetMoves(List<Vector> selection, string selectionDirection)
 	{
+		Debug.Log("selectionDirection: " + selectionDirection);
 		var moves = new Dictionary<string, List<Vector>>();
 		foreach(var dir in directions.Keys)
 		{
@@ -157,6 +158,7 @@ public class Board : MonoBehaviour
 	{
 		if (SameAxis(selectionDirection, dir))
 		{
+			Debug.Log("doing sumito check");
 			var enemyColor = (GetSpace(selection[0]).piece.color == "black") ? "white" : "black";
 			var selectionEdge = (selectionDirection == dir) ? selection[selection.Count - 1] : selection[0];
 			var enemyColumnStart = GetNeighborLocation(selectionEdge, dir);
@@ -164,11 +166,13 @@ public class Board : MonoBehaviour
 		}
 
 		// if a side step move, just make sure target spaces are empty
+		Debug.Log("doing regular check");
 		foreach (var loc in selection)
 		{
 			var neighborLocation = GetNeighborLocation(loc, dir);
 			if (!ValidLocation(neighborLocation) || !GetSpace(neighborLocation).Empty()) return false;
 		}
+		Debug.Log("move checks out");
 		return true;
 	}
 
@@ -192,19 +196,33 @@ public class Board : MonoBehaviour
 	private static bool SameAxis(string dir1, string dir2)
 	{
 		// sort strings if necessary
+		Debug.Log(dir1);
+		Debug.Log(dir2);
 		if (string.Compare(dir1, dir2) > 0)
 		{
 			var temp = dir1; dir1 = dir2; dir2 = temp;
 		}
+		if (dir1 == dir2) return true;
 		if (dir1 == "E" && dir2 == "W") return true;
 		if (dir1 == "NW" && dir2 == "SE") return true;
 		if (dir1 == "NE" && dir2 == "SW") return true;
 		return false;
 	}
 
-	public void Move(List<Vector> selection, string dir)
+	public void Move(List<Vector> selection, List<Vector> enemyColumn, string dir)
 	{
-		foreach(var loc in selection)
+		enemyColumn.Reverse();
+		if (selection.Count > 1 && GetNeighborLocation(selection[0], dir) == selection[1]) // selection direction same as move
+		{
+			selection.Reverse();
+		}
+		MoveColumn(enemyColumn, dir);
+		MoveColumn(selection, dir);
+	}
+
+	private void MoveColumn(List<Vector> column, string dir)
+	{
+		foreach(var loc in column)
 		{
 			MovePiece(loc, dir);
 		}
@@ -243,10 +261,10 @@ public struct Vector
 		this.x = x; this.y = y;
 	}
 
-	//public static Vector operator +(Vector v1, Vector v2)
-	//{
-	//	return new Vector(v1.x + v2.x, v1.y + v2.y);
-	//}
+	public static Vector operator +(Vector v1, Vector v2)
+	{
+		return new Vector(v1.x + v2.x, v1.y + v2.y);
+	}
 
 	//public static Vector operator -(Vector v1, Vector v2)
 	//{
@@ -263,24 +281,24 @@ public struct Vector
 	//	return new Vector((v1.x + v2.x) / 2, (v1.y + v2.y) / 2);
 	//}
 
-	//public static bool operator ==(Vector v1, Vector v2)
-	//{
-	//	return v1.x == v2.x && v1.y == v2.y;
-	//}
+	public static bool operator ==(Vector v1, Vector v2)
+	{
+		return v1.x == v2.x && v1.y == v2.y;
+	}
 
-	//public static bool operator !=(Vector v1, Vector v2)
-	//{
-	//	return v1.x != v2.x || v1.y != v2.y;
-	//}
+	public static bool operator !=(Vector v1, Vector v2)
+	{
+		return v1.x != v2.x || v1.y != v2.y;
+	}
 
-	//public override bool Equals(object o)
-	//{
-	//	var v = (Vector)o;
-	//	return x == v.x && y == v.y;
-	//}
+	public override bool Equals(object o)
+	{
+		var v = (Vector)o;
+		return x == v.x && y == v.y;
+	}
 
-	//public override int GetHashCode()
-	//{
-	//	return x + y;
-	//}
+	public override int GetHashCode()
+	{
+		return x + y;
+	}
 }

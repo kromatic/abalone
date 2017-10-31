@@ -9,10 +9,10 @@ public class Game : MonoBehaviour
 	public int player2Score = 0;
 	private Board board;
 	private Vector anchorLocation;
-	private List<Vector> selection;
+	private List<Vector> selection = new List<Vector>();
 	private string selectionDirection;
-	private List<Vector> potentialSelection;
-	private Dictionary<string, List<Vector>> potentialMoves;
+	private List<Vector> potentialSelection = new List<Vector>();
+	private Dictionary<string, List<Vector>> potentialMovesSumito;
 
 	void Awake()
 	{
@@ -22,10 +22,11 @@ public class Game : MonoBehaviour
 	public void CompleteSelection(int distance, string dir)
 	{
 		selection = Board.GetColumn(anchorLocation, distance, dir);
+		selectionDirection = dir;
 		board.ResetPieces(potentialSelection);
 		potentialSelection.Clear();
 		board.Select(selection);
-		potentialMoves = board.GetMoves(selection, selectionDirection);
+		potentialMovesSumito = board.GetMoves(selection, selectionDirection);
 		// Debug.Log(potentialMoves.Count);
 		ChangeButtonsStatus(true);
 	}
@@ -33,16 +34,15 @@ public class Game : MonoBehaviour
 	public void MakeMove(string dir)
 	{
 		board.ResetPieces(selection);
-		board.Move(selection, dir);
-		board.Move(potentialMoves[dir], dir);
+		board.Move(selection, potentialMovesSumito[dir], dir);
 		selection.Clear();
 		ChangeButtonsStatus(false);
 	}
 
 	private void ChangeButtonsStatus(bool activate)
 	{
-		var action = (activate) ? (Action<MoveButton>)DeactivateButton : ActivateButton;
-		foreach (var direction in potentialMoves.Keys)
+		var action = (activate) ? (Action<MoveButton>)ActivateButton : DeactivateButton;
+		foreach (var direction in potentialMovesSumito.Keys)
 		{	
 			var button = GameObject.Find("Move" + direction).GetComponent<MoveButton>();
 			action(button);
