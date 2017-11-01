@@ -5,8 +5,12 @@ using System;
 
 public class Game : MonoBehaviour
 {
-	public int player1Score = 0;
-	public int player2Score = 0;
+	public Dictionary<string, int> scores = new Dictionary<string, int>
+	{
+		{"black", 0},
+		{"white", 0}
+	};
+	public string currentPlayer = "black";
 	private Board board;
 	private Vector anchorLocation;
 	private List<Vector> selection = new List<Vector>();
@@ -34,9 +38,20 @@ public class Game : MonoBehaviour
 	public void MakeMove(string dir)
 	{
 		board.ResetPieces(selection);
-		board.Move(selection, potentialMovesSumito[dir], dir);
+		int scoreDelta = board.Move(selection, potentialMovesSumito[dir], dir);
+		scores[currentPlayer] += scoreDelta;
+		Debug.Log(scores["black"]);
+		Debug.Log(scores["white"]);
 		selection.Clear();
 		ChangeButtonsStatus(false);
+		if (scores[currentPlayer] == 6)
+		{
+			currentPlayer = "none";
+		}
+		else
+		{
+			currentPlayer = (currentPlayer == "black") ? "black" : "black";
+		}
 	}
 
 	private void ChangeButtonsStatus(bool activate)

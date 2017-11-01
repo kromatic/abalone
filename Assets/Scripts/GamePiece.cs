@@ -19,6 +19,8 @@ public class GamePiece : MonoBehaviour
 	void OnMouseDown()
 	{
 		var game = GameObject.Find("Game").GetComponent<Game>();
+		if (color != game.currentPlayer) return;
+		
 		if (selectable)
 		{
 			game.CompleteSelection(selectableDistance, selectableDirection);

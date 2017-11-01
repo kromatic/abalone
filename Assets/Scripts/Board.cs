@@ -122,6 +122,7 @@ public class Board : MonoBehaviour
 
 	private static Vector GetNeighborLocation(Vector location, string dir)
 	{
+		if (!directions.ContainsKey(dir)) return new Vector(-1, -1);
 		var delta = directions[dir];
 		if (location.x == 4 && dir[0] == 'S')
 		{
@@ -209,26 +210,29 @@ public class Board : MonoBehaviour
 		return false;
 	}
 
-	public void Move(List<Vector> selection, List<Vector> enemyColumn, string dir)
+	public int Move(List<Vector> selection, List<Vector> enemyColumn, string dir)
 	{
 		enemyColumn.Reverse();
 		if (selection.Count > 1 && GetNeighborLocation(selection[0], dir) == selection[1]) // selection direction same as move
 		{
 			selection.Reverse();
 		}
-		MoveColumn(enemyColumn, dir);
+		int res = MoveColumn(enemyColumn, dir);
 		MoveColumn(selection, dir);
+		return res;
 	}
 
-	private void MoveColumn(List<Vector> column, string dir)
+	private int MoveColumn(List<Vector> column, string dir)
 	{
+		int res = 0;
 		foreach(var loc in column)
 		{
-			MovePiece(loc, dir);
+			res += MovePiece(loc, dir);
 		}
+		return res;
 	}
 
-	private void MovePiece(Vector loc, string dir)
+	private int MovePiece(Vector loc, string dir)
 	{
 		var space = GetSpace(loc);
 		var piece = space.piece;
@@ -237,7 +241,7 @@ public class Board : MonoBehaviour
 		if (!ValidLocation(neighborLocation))
 		{
 			GameObject.Destroy(piece.gameObject);
-			return;
+			return 1;
 		}
 		var neighbor = GetSpace(neighborLocation);
 		piece.transform.position = neighbor.transform.position;
@@ -247,6 +251,7 @@ public class Board : MonoBehaviour
 		// Debug.Log("one");
 		piece.transform.parent = neighbor.transform;
 		neighbor.piece = piece;
+		return 0;
 		// Debug.Log("two");
 	}
 
