@@ -50,7 +50,7 @@ public class Game : MonoBehaviour
 		}
 		else
 		{
-			currentPlayer = (currentPlayer == "black") ? "black" : "black";
+			currentPlayer = (currentPlayer == "black") ? "white" : "black";
 		}
 	}
 
@@ -81,6 +81,7 @@ public class Game : MonoBehaviour
 		{
 			board.ResetPieces(selection);
 			selection.Clear();
+			ChangeButtonsStatus(false);
 		}
 		else if (potentialSelection.Count > 0)
 		{

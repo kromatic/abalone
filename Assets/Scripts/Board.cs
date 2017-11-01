@@ -182,7 +182,7 @@ public class Board : MonoBehaviour
 		var cur = start;
 		while (column.Count < bound)
 		{
-			if (!ValidLocation(cur)) return true; // edge of board - ok
+			if (!ValidLocation(cur)) return column.Count > 0; // edge of board - ok
 			var space = GetSpace(cur);
 			if (space.Empty()) return true; // empty space - ok
 			if (space.piece.color != color) return false; // enemy piece in sequence - not ok
