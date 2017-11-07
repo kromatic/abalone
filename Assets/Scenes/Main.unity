@@ -188,9 +188,9 @@ Transform:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 62114061}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -1, y: 0, z: 0.16903947}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0.7071068, w: 0.7071068}
+  m_LocalPosition: {x: 0, y: 0.10000002, z: 0}
+  m_LocalScale: {x: 0.10000003, y: 0.10000003, z: 0}
   m_Children:
   - {fileID: 285883516}
   - {fileID: 456382428}
@@ -198,8 +198,8 @@ Transform:
   - {fileID: 1309381660}
   - {fileID: 1999614878}
   - {fileID: 1735212586}
-  m_Father: {fileID: 1994898983}
-  m_RootOrder: 1
+  m_Father: {fileID: 2098783019}
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &164580089
 GameObject:
@@ -590,7 +590,7 @@ GameObject:
   m_PrefabParentObject: {fileID: 1566339559989382, guid: 26f7312b6df8b4246bdc9ba78bc49805,
     type: 2}
   m_PrefabInternal: {fileID: 2098783018}
---- !u!114 &1787510168
+--- !u!114 &1787510167
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_PrefabParentObject: {fileID: 0}
@@ -598,7 +598,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1787510166}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a1e6541f8956d4b8a932bbbd752b0e3f, type: 3}
+  m_Script: {fileID: 11500000, guid: a22ab914b14bb413bbf2a291b641bed6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   spacePrefab: {fileID: 4037912794649944, guid: 0c53841cf41954d5499405a9f676ae7c,
@@ -635,8 +635,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6c68dcd6117bc4c24a868387541967cf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  player1Score: 0
-  player2Score: 0
+  currentPlayer: black
 --- !u!4 &1994898983
 Transform:
   m_ObjectHideFlags: 0
@@ -648,7 +647,6 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 2098783019}
-  - {fileID: 62114062}
   m_Father: {fileID: 0}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -698,7 +696,7 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 1566339559989382, guid: 26f7312b6df8b4246bdc9ba78bc49805, type: 2}
       propertyPath: m_Name
-      value: Board
+      value: UserBoard
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 26f7312b6df8b4246bdc9ba78bc49805, type: 2}

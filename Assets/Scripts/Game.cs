@@ -11,7 +11,7 @@ public class Game : MonoBehaviour
 		{"white", 0}
 	};
 	public string currentPlayer = "black";
-	private Board board;
+	private UserBoard board;
 	private Vector anchorLocation;
 	private List<Vector> selection = new List<Vector>();
 	private string selectionDirection;
@@ -20,12 +20,12 @@ public class Game : MonoBehaviour
 
 	void Awake()
 	{
-		board = GameObject.Find("Board").GetComponent<Board>();
+		board = GameObject.Find("Board").GetComponent<UserBoard>();
 	}
 
 	public void CompleteSelection(int distance, string dir)
 	{
-		selection = Board.GetColumn(anchorLocation, distance, dir);
+		selection = UserBoard.GetColumn(anchorLocation, distance, dir);
 		selectionDirection = dir;
 		board.ResetPieces(potentialSelection);
 		potentialSelection.Clear();
