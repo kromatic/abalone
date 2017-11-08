@@ -213,7 +213,6 @@ public class Board
 	{
 		board[location.x][location.y] = space;
 	}
-
 }
 
 public struct Vector
