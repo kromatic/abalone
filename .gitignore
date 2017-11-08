@@ -33,3 +33,4 @@ sysinfo.txt
 *.apk
 *.unitypackage
 Assets/Scripts/OldBoard.cs
+Assets/Scripts/OldBoard.cs.meta
