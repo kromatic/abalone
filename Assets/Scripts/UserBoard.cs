@@ -9,57 +9,31 @@ public class UserBoard : MonoBehaviour
 	public Transform blackPrefab;
 	public Transform whitePrefab;
 	public float paddingFactor = 1.1f;
-	private List<List<Space>> board;
-	private static int height = 9;
-	private static List<int> rowLengths = new List<int> {5, 6, 7, 8, 9, 8, 7, 6, 5};
-	private float spaceDiameter;
-
-	private static Dictionary<string, Vector> directions = new Dictionary<string, Vector>
-	{
-		{"NW", new Vector(-1, -1)},
-		{"NE", new Vector(-1,  0)},
-		{"E",  new Vector(0,   1)},
-		{"SE", new Vector(1,   1)},
-		{"SW", new Vector(1,   0)},
-		{"W",  new Vector(0,  -1)}
-	};
+	private Board board;
+	private List<List<Transform>> userBoard;
+	
 
 	void Awake()
 	{
 		// first create spaces
-		board = new List<List<Space>>();
-		spaceDiameter = spacePrefab.localScale.x * transform.localScale.x * paddingFactor;
+		userBoard = new List<List<Transform>>(); 
+		var spaceDiameter = spacePrefab.localScale.x * transform.localScale.x * paddingFactor;
 		var spaceRadius = spaceDiameter / 2;
-		for (int i = 0; i < height; i++)
+		var xOffset = Board.height / 2 * spaceDiameter;
+		for (int i = 0; i < Board.height; i++)
 		{
-			var length = rowLengths[i];
-			var row = new List<Space>();
-			var x = (height - length) * spaceRadius  - (height / 2) * spaceDiameter;
-			var y = (height / 2 - i) * spaceDiameter;
+			var length = Board.rowLengths[i];
+			var row = new List<Transform>();
+			var x = (Board.height - length) * spaceRadius  - xOffset;
+			var y = (Board.height / 2 - i) * spaceDiameter;
 			for (int j = 0; j < length; j++)
 			{
 				var position = new Vector3(x, y, 0);
-				var space = Instantiate(spacePrefab, position, Quaternion.identity, this.transform).GetComponent<Space>();
+				var space = Instantiate(spacePrefab, position, Quaternion.identity, this.transform);
 				row.Add(space);
 				x += spaceDiameter;
 			}
-			board.Add(row);
-		}
-
-		// then set up pieces in initial locations
-		foreach (int i in new List<int> {0, 1, 2, 6, 7, 8})
-		{
-			var piecePrefab = (i < 3) ? whitePrefab : blackPrefab;
-			for (int j = 0; j < board[i].Count; j++)
-			{
-				if ((i == 2 || i == 6) && (j < 2 || j > 4))
-				{
-					continue;
-				}
-				var piece = Instantiate(piecePrefab, board[i][j].transform).GetComponent<GamePiece>();
-				piece.location = new Vector(i, j);
-				board[i][j].piece = piece;
-			}
+			userBoard.Add(row);
 		}
 	}
 

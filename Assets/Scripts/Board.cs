@@ -6,18 +6,24 @@ using UnityEngine;
 public class Board
 {
 	private List<List<char>> board;
-	private static int height = 9;
-	private static List<int> rowLengths = new List<int> {5, 6, 7, 8, 9, 8, 7, 6, 5};
+	public static int height;
+	public static List<int> rowLengths;
+	private static Dictionary<string, Vector> directions;
 
-	private static Dictionary<string, Vector> directions = new Dictionary<string, Vector>
+	static Board()
 	{
-		{"NW", new Vector(-1, -1)},
-		{"NE", new Vector(-1,  0)},
-		{"E",  new Vector(0,   1)},
-		{"SE", new Vector(1,   1)},
-		{"SW", new Vector(1,   0)},
-		{"W",  new Vector(0,  -1)}
-	};
+		height = 9;
+		rowLengths = new List<int> {5, 6, 7, 8, 9, 8, 7, 6, 5};
+		directions = new Dictionary<string, Vector>
+		{
+			{"NW", new Vector(-1, -1)},
+			{"NE", new Vector(-1,  0)},
+			{"E",  new Vector(0,   1)},
+			{"SE", new Vector(1,   1)},
+			{"SW", new Vector(1,   0)},
+			{"W",  new Vector(0,  -1)}
+		};
+	}
 
 	public Board()
 	{
