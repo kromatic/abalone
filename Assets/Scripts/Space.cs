@@ -6,8 +6,15 @@ public class Space : MonoBehaviour
 {
 	public GamePiece piece;
 
-    public bool Empty()
+    public void Clear()
     {
-        return piece == null;
+        Destroy(piece);
+        piece = null;
+    }
+
+    public void SetPiece(Transform prefab)
+    {
+        if (piece != null) Destroy(this.piece);
+        piece = Instantiate(prefab, transform.position, Quaternion.identity).GetComponent<GamePiece>();
     }
 }

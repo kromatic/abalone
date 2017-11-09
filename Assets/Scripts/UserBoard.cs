@@ -9,31 +9,50 @@ public class UserBoard : MonoBehaviour
 	public Transform blackPrefab;
 	public Transform whitePrefab;
 	public float paddingFactor = 1.1f;
-	private Board board;
-	private List<List<Transform>> userBoard;
+	private List<List<Space>> userBoard;
 	
 
 	void Awake()
 	{
-		// first create spaces
-		userBoard = new List<List<Transform>>(); 
+		// create empty board
+		userBoard = new List<List<Space>>(); 
 		var spaceDiameter = spacePrefab.localScale.x * transform.localScale.x * paddingFactor;
 		var spaceRadius = spaceDiameter / 2;
 		var xOffset = Board.height / 2 * spaceDiameter;
 		for (int i = 0; i < Board.height; i++)
 		{
 			var length = Board.rowLengths[i];
-			var row = new List<Transform>();
+			var row = new List<Space>();
 			var x = (Board.height - length) * spaceRadius  - xOffset;
 			var y = (Board.height / 2 - i) * spaceDiameter;
 			for (int j = 0; j < length; j++)
 			{
 				var position = new Vector3(x, y, 0);
-				var space = Instantiate(spacePrefab, position, Quaternion.identity, this.transform);
+				var space = Instantiate(spacePrefab, position, Quaternion.identity, this.transform).GetComponent<Space>();
 				row.Add(space);
 				x += spaceDiameter;
 			}
 			userBoard.Add(row);
+		}
+	}
+
+	public void UpdateView(Board board)
+	{
+		int i = 0;
+		foreach (var row in board.View())
+		{
+			for (int j = 0; j < row.Count; j++)
+			{
+				if (row[j] == 'O')
+				{
+					userBoard[i][j].Clear();
+				}
+				else
+				{
+					userBoard[i][j].SetPiece((row[j] == 'B') ? blackPrefab : whitePrefab);
+				}
+			}
+			i++;
 		}
 	}
 

@@ -50,6 +50,14 @@ public class Board
 		}
 	}
 
+	public IEnumerable<IList<char>> View()
+	{
+		foreach (var row in board)
+		{
+			yield return row.AsReadOnly();
+		}
+	}
+
 	public IEnumerable<KeyValuePair<Vector, string>> GetPotentialSelections(Vector anchorLocation)
 	{
 		var anchor = GetSpace(anchorLocation);
