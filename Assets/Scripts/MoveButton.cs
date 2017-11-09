@@ -5,31 +5,41 @@ using UnityEngine;
 public class MoveButton : MonoBehaviour
 {
 	public string direction;
-	public float unavailableAlpha;
-	private bool available = false;
+	public float disabledAlpha;
+	private Board board;
+	private bool enabled;
+	private List<Vector> enemyColumn;
+
+	void Awake()
+	{
+		enabled = false;
+		boardDisplay = GameObject.Find("BoardDisplay").GetComponent<BoardDisplay>();
+	}
 
 	void OnMouseDown()
 	{
 		// Debug.Log("pressing");
-		if (available)
+		if (enabled)
 		{
 			// Debug.Log("im trying to move");
-			var game = GameObject.Find("Game").GetComponent<Game>();
-			game.MakeMove(direction);
+			// var game = GameObject.Find("Game").GetComponent<Game>();
+			boardDisplay.MakeMove(direction);
 		}
 	}
 
-	public void Activate()
+	public void Enable(List<Vector> enemyColumn)
 	{
-		available = true;
+		enabled = true;
+		enemyColumn = 
 		// Debug.Log("making button clickable");
 		ChangeAlpha(1);
 	}
 
-	public void Deactivate()
+	public void Disable()
 	{
-		available = false;
-		ChangeAlpha(unavailableAlpha);
+		enabled = false;
+		enemyColumn = null;
+		ChangeAlpha(disabledAlpha);
 	}
 
 	private void ChangeAlpha(float alpha)

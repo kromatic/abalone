@@ -58,19 +58,21 @@ public class Board
 		}
 	}
 
-	public IEnumerable<KeyValuePair<Vector, string>> GetPotentialSelections(Vector anchorLocation)
+	public IEnumerable<KeyValuePair<Vector, string>> GetSelectables(Vector anchorLocation)
 	{
 		var anchor = GetSpace(anchorLocation);
 		yield return new KeyValuePair<Vector, string>(anchorLocation, "");
 		foreach (var direction in directions.Keys)
 		{
 			var current = anchorLocation;
-			for(var d = 1; d < 3; d++)
+			var distance = 1;
+			while (distance < 3)
 			{
 				current = GetNeighborLocation(current, direction);
 				if (!ValidLocation(current)) break;
 				if (GetSpace(current) != anchor) break;
-				yield return new KeyValuePair<Vector, string>(current, direction); 
+				yield return new KeyValuePair<Vector, string>(current, direction);
+				distance++;
 			}
 		}
 	}
@@ -80,17 +82,17 @@ public class Board
 		return board[loc.x][loc.y];
 	}
 
-	// not sure if i need this one
-	public static List<Vector> GetColumn(Vector start, int size, string dir)
+
+	public static List<Vector> GetColumn(Vector start, Vector end, string direction)
 	{
-		var res = new List<Vector>();
-		var cur = start;
-		for (int d = 0; d < size; d++)
+		var column = new List<Vector>();
+		var current = start;
+		while (current != end)
 		{
-			res.Add(cur);
-			cur = GetNeighborLocation(cur, dir);
+			yield return current;
+			current = GetNeighborLocation(current, direction);
 		}
-		return res;
+		yield return current;
 	}
 
 	private static Vector GetNeighborLocation(Vector location, string direction)

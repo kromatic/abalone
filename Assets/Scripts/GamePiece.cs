@@ -5,29 +5,34 @@ using UnityEngine;
 public class GamePiece : MonoBehaviour
 {
 	public Vector location;
-	public string color;
-	public bool anchor = false;
+	public char color;
+	public bool anchor;
 	public Color normalColor;
 	public Color selectedColor;
 	public Color selectableColor;
 	public Color anchorColor;
-	private bool selectable = false;
-	private int selectableDistance = -1;
-	private string selectableDirection = "";
+	private bool selectable;
+	private string selectableDirection;
+	private BoardDisplay boardDisplay;
+	private Game game;
 	// private bool selected = false;
+
+	void Awake()
+	{
+		boardDisplay = GameObject.Find("BoardDisplay").GetComponent<BoardDisplay>();
+		game = GameObject.Find("Game").GetComponent<Game>();
+	}
 
 	void OnMouseDown()
 	{
-		var game = GameObject.Find("Game").GetComponent<Game>();
 		if (color != game.currentPlayer) return;
-		
 		if (selectable)
 		{
-			game.CompleteSelection(selectableDistance, selectableDirection);
+			boardDisplay.CompleteSelection(location, selectableDirection);
 		}
 		else
 		{
-			game.Anchor(location);
+			boardDisplay.Anchor(location);
 		}
 	}
 
@@ -37,11 +42,10 @@ public class GamePiece : MonoBehaviour
 		GetComponent<SpriteRenderer>().color = selectedColor;
 	}
 
-	public void MarkSelectable(int distance, string dir)
+	public void MarkSelectable(string direction)
 	{
 		selectable = true;
-		selectableDistance = distance;
-		selectableDirection = dir;
+		selectableDirection = direction;
 		GetComponent<SpriteRenderer>().color = (anchor == true) ? selectedColor : selectableColor;
 	}
 
