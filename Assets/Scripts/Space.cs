@@ -5,6 +5,7 @@ using UnityEngine;
 public class Space : MonoBehaviour
 {
 	public GamePiece piece;
+    public Vector location;
 
     public void Clear()
     {
@@ -16,5 +17,6 @@ public class Space : MonoBehaviour
     {
         if (piece != null) Destroy(this.piece);
         piece = Instantiate(prefab, transform.position, Quaternion.identity).GetComponent<GamePiece>();
+        piece.location = location;
     }
 }

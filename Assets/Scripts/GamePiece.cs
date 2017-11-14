@@ -6,11 +6,11 @@ public class GamePiece : MonoBehaviour
 {
 	public Vector location;
 	public char color;
-	public bool anchor;
 	public Color normalColor;
 	public Color selectedColor;
 	public Color selectableColor;
 	public Color anchorColor;
+	private bool anchor;
 	private bool selectable;
 	private string selectableDirection;
 	private BoardDisplay boardDisplay;
@@ -52,7 +52,7 @@ public class GamePiece : MonoBehaviour
 	public void Clear()
 	{
 		selectable = false; anchor = false; // selected = false;
-		selectableDistance = -1; selectableDirection = "";
+		// selectableDirection = "";
 		GetComponent<SpriteRenderer>().color = normalColor;
 	}
 }

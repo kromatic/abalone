@@ -34,11 +34,18 @@ public class BoardDisplay : MonoBehaviour
 			{
 				var position = new Vector3(x, y, 0);
 				var space = Instantiate(spacePrefab, position, Quaternion.identity, this.transform).GetComponent<Space>();
+				space.location = new Vector(i, j);
 				row.Add(space);
 				x += spaceDiameter;
 			}
 			boardDisplay.Add(row);
 		}
+	}
+
+	void Start()
+	{
+		board = game.board;
+		UpdateView();
 	}
 
 	public void UpdateView()
@@ -63,6 +70,8 @@ public class BoardDisplay : MonoBehaviour
 
 	public void Anchor(Vector anchorLocation)
 	{
+		if (selectables.Count > 0) ClearSelectables();
+		else if (selection.Count > 0) ClearSelection();
 		this.anchorLocation = anchorLocation;
 		selectables = new List<Vector>();
 		foreach (var pair in board.GetSelectables(anchorLocation))
@@ -78,6 +87,11 @@ public class BoardDisplay : MonoBehaviour
 		GetSpace(location).piece.MarkSelectable(direction);
 	}
 
+	private void Select(Vector location)
+	{
+		GetSpace(location).piece.Select();
+	}
+
 	private Space GetSpace(Vector location)
 	{
 		return boardDisplay[location.x][location.y];
@@ -85,12 +99,35 @@ public class BoardDisplay : MonoBehaviour
 
 	public void CompleteSelection(Vector targetLocation, string direction)
 	{
+		ClearSelectables();
 		selection = Board.GetColumn(anchorLocation, targetLocation, direction);
+		foreach (var location in selection)
+		{
+			Select(location);
+		}
 		foreach (var pair in board.GetMoves(selection, direction))
 		{
 			var moveDirection = pair.Key; var enemyColumn = pair.Value;
-			var moveButton = GameObject.Find("Move" + moveDirection);
-			moveButton.Enable(enemyColumn);
+			var moveButton = GameObject.Find("Move" + moveDirection).GetComponent<MoveButton>();
+			moveButton.Enable(selection, direction, enemyColumn);
+		}
+	}
+
+	public void ClearSelection()
+	{
+		ClearPieces(selection);
+	}
+
+	private void ClearSelectables()
+	{
+		ClearPieces(selectables);
+	}
+
+	private void ClearPieces(List<Vector> locations)
+	{
+		foreach (var location in locations)
+		{
+			GetSpace(location).piece.Clear();
 		}
 	}
 

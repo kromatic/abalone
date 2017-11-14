@@ -6,39 +6,58 @@ public class MoveButton : MonoBehaviour
 {
 	public string direction;
 	public float disabledAlpha;
-	private Board board;
-	private bool enabled;
+	private bool on;
+	private List<Vector> selection;
+	private string selectionDirection;
 	private List<Vector> enemyColumn;
+	private Board board;
+	private BoardDisplay boardDisplay;
+	private Game game;
 
 	void Awake()
 	{
-		enabled = false;
+		on = false;
 		boardDisplay = GameObject.Find("BoardDisplay").GetComponent<BoardDisplay>();
+		game = GameObject.Find("Game").GetComponent<Game>();
+	}
+
+	void Start()
+	{
+		board = game.board;
 	}
 
 	void OnMouseDown()
 	{
 		// Debug.Log("pressing");
-		if (enabled)
+		if (on)
 		{
 			// Debug.Log("im trying to move");
 			// var game = GameObject.Find("Game").GetComponent<Game>();
-			boardDisplay.MakeMove(direction);
+			boardDisplay.ClearSelection();
+			int scoreDelta = board.Move(selection, selectionDirection, enemyColumn, direction);
+			boardDisplay.UpdateView();
+			game.NextTurn(scoreDelta);
+			foreach (var direction in Board.directions.Keys)
+			{
+				var moveButton = GameObject.Find("Move" + direction).GetComponent<MoveButton>();
+				moveButton.Disable();
+			}
 		}
 	}
 
-	public void Enable(List<Vector> enemyColumn)
+	public void Enable(List<Vector> selection, string selectionDirection, List<Vector> enemyColumn)
 	{
-		enabled = true;
-		enemyColumn = 
+		on = true;
+		this.selection = selection; this.selectionDirection = selectionDirection;
+		this.enemyColumn = enemyColumn;
 		// Debug.Log("making button clickable");
 		ChangeAlpha(1);
 	}
 
 	public void Disable()
 	{
-		enabled = false;
-		enemyColumn = null;
+		on = false;
+		// selection = enemyColumn = null; selectionDirection = "";
 		ChangeAlpha(disabledAlpha);
 	}
 

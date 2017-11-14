@@ -8,7 +8,7 @@ public class Board
 	private List<List<char>> board;
 	public static int height;
 	public static List<int> rowLengths;
-	private static Dictionary<string, Vector> directions;
+	public static Dictionary<string, Vector> directions;
 
 	static Board()
 	{
@@ -89,10 +89,11 @@ public class Board
 		var current = start;
 		while (current != end)
 		{
-			yield return current;
+			column.Add(current);
 			current = GetNeighborLocation(current, direction);
 		}
-		yield return current;
+		column.Add(current);
+		return column;
 	}
 
 	private static Vector GetNeighborLocation(Vector location, string direction)
