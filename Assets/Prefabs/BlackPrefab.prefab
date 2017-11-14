@@ -68,10 +68,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7fd36a09f90ec4a1ab0a9be10f1ebf33, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  color: black
-  anchor: 0
-  selectable: 0
-  selected: 0
+  color: 66
   normalColor: {r: 0, g: 0, b: 0, a: 1}
   selectedColor: {r: 0.47794116, g: 0.045685537, b: 0.045685537, a: 1}
   selectableColor: {r: 0.056985296, g: 0.09274838, b: 0.45588237, a: 1}

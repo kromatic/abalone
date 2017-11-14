@@ -13,12 +13,15 @@ public class BoardDisplay : MonoBehaviour
 	private Game game;
 	private List<List<Space>> boardDisplay;
 	private Vector anchorLocation;
+	private bool showingSelectables;
+	private bool showingSelection;
 	private List<Vector> selectables;
 	private List<Vector> selection;
 
 	void Awake()
 	{
 		game = GameObject.Find("Game").GetComponent<Game>();
+		showingSelectables = showingSelectables = false;
 		// create empty board
 		boardDisplay = new List<List<Space>>(); 
 		var spaceDiameter = spacePrefab.localScale.x * transform.localScale.x * paddingFactor;
@@ -33,7 +36,7 @@ public class BoardDisplay : MonoBehaviour
 			for (int j = 0; j < length; j++)
 			{
 				var position = new Vector3(x, y, 0);
-				var space = Instantiate(spacePrefab, position, Quaternion.identity, this.transform).GetComponent<Space>();
+				var space = Instantiate(spacePrefab, position, Quaternion.identity, transform).GetComponent<Space>();
 				space.location = new Vector(i, j);
 				row.Add(space);
 				x += spaceDiameter;
@@ -70,8 +73,8 @@ public class BoardDisplay : MonoBehaviour
 
 	public void Anchor(Vector anchorLocation)
 	{
-		if (selectables.Count > 0) ClearSelectables();
-		else if (selection.Count > 0) ClearSelection();
+		if (showingSelectables) ClearSelectables();
+		else if (showingSelection) ClearSelection();
 		this.anchorLocation = anchorLocation;
 		selectables = new List<Vector>();
 		foreach (var pair in board.GetSelectables(anchorLocation))
@@ -80,6 +83,7 @@ public class BoardDisplay : MonoBehaviour
 			MarkSelectable(location, direction);
 			selectables.Add(location);
 		}
+		showingSelectables = true;
 	}
 
 	private void MarkSelectable(Vector location, string direction)
@@ -105,6 +109,7 @@ public class BoardDisplay : MonoBehaviour
 		{
 			Select(location);
 		}
+		showingSelection = true;
 		foreach (var pair in board.GetMoves(selection, direction))
 		{
 			var moveDirection = pair.Key; var enemyColumn = pair.Value;
@@ -115,11 +120,13 @@ public class BoardDisplay : MonoBehaviour
 
 	public void ClearSelection()
 	{
+		showingSelection = false;	
 		ClearPieces(selection);
 	}
 
 	private void ClearSelectables()
 	{
+		showingSelectables = false;
 		ClearPieces(selectables);
 	}
 

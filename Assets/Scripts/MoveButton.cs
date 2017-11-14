@@ -24,6 +24,7 @@ public class MoveButton : MonoBehaviour
 	void Start()
 	{
 		board = game.board;
+		// Disable();
 	}
 
 	void OnMouseDown()

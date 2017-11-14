@@ -122,7 +122,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   direction: 
-  unavailableAlpha: 0.4
+  disabledAlpha: 0.4
 --- !u!212 &212792751430297230
 SpriteRenderer:
   m_ObjectHideFlags: 1

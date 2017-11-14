@@ -33,7 +33,6 @@ public class Game : MonoBehaviour
 	{
 		currentPlayer = 'N'; // no current player; disables board pieces
 		// show a message
-
 	}
 	
 }
