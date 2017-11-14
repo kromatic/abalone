@@ -206,6 +206,7 @@ public class Board
 		{
 			SetSpace(GetNeighborLocation(location, direction), GetSpace(location));
 			SetSpace(location, 'O');
+			Debug.Log("moved piece and should have cleared space");
 		}
 	}
 
@@ -223,6 +224,7 @@ public class Board
 			targetLocation = location;
 		}
 		SetSpace(targetLocation, 'O');
+		Debug.Log("should have cleared a space");
 		return score;
 	}
 

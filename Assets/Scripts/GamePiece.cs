@@ -32,6 +32,7 @@ public class GamePiece : MonoBehaviour
 		}
 		else
 		{
+			anchor = true;
 			boardDisplay.Anchor(location);
 		}
 	}

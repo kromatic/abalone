@@ -9,12 +9,13 @@ public class Space : MonoBehaviour
 
     public void Clear()
     {
-        Destroy(piece);
+        if (piece != null) { print("destroying piece"); Destroy(piece.gameObject); }
         piece = null;
     }
 
     public void SetPiece(Transform prefab)
     {
+        // can make this a bit more efficient
         if (piece != null) Destroy(this.piece);
         piece = Instantiate(prefab, transform.position, Quaternion.identity, transform).GetComponent<GamePiece>();
         // piece.transform.localScale = prefab.localScale * transform.localScale;
