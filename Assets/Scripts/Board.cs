@@ -218,8 +218,17 @@ public class Board
 		{
 			score = 1;
 		}
-		foreach (var location in column)
+		else
 		{
+			var location = column.First();
+			SetSpace(targetLocation, GetSpace(location));
+			targetLocation = location;
+			// Debug.Log("moved first piece");
+		}
+		// int j = 2;
+		foreach (var location in column.Skip(1))
+		{
+			// Debug.Log("moved piece"); Debug.Log(j); j++;
 			SetSpace(targetLocation, GetSpace(location));
 			targetLocation = location;
 		}
