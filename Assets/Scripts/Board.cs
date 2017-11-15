@@ -213,24 +213,24 @@ public class Board
 	private int MoveColumnInLine(IEnumerable<Vector> column, string direction)
 	{
 		int score = 0;
-		var targetLocation = GetNeighborLocation(column.First(), direction);
+		var firstLocation = column.First();
+		var targetLocation = GetNeighborLocation(firstLocation, direction);
 		if (!ValidLocation(targetLocation))
 		{
 			score = 1;
 		}
 		else
 		{
-			var location = column.First();
-			Debug.Log(targetLocation.x); Debug.Log(targetLocation.y);
-			SetSpace(targetLocation, GetSpace(location));
-			targetLocation = location;
+			// Debug.Log(targetLocation.x); Debug.Log(targetLocation.y);
+			SetSpace(targetLocation, GetSpace(firstLocation));
 			// Debug.Log("moved first piece");
 		}
+		targetLocation = firstLocation;
 		// int j = 2;
 		foreach (var location in column.Skip(1))
 		{
 			// Debug.Log("moved piece"); Debug.Log(j); j++;
-			Debug.Log(targetLocation.x); Debug.Log(targetLocation.y);
+			// Debug.Log(targetLocation.x); Debug.Log(targetLocation.y);
 			SetSpace(targetLocation, GetSpace(location));
 			targetLocation = location;
 		}
