@@ -21,7 +21,7 @@ public class BoardDisplay : MonoBehaviour
 	void Awake()
 	{
 		game = GameObject.Find("Game").GetComponent<Game>();
-		showingSelectables = showingSelectables = false;
+		showingSelectables = showingSelection = false;
 		// create empty board
 		boardDisplay = new List<List<Space>>(); 
 		var spaceDiameter = spacePrefab.localScale.x * transform.localScale.x * paddingFactor;

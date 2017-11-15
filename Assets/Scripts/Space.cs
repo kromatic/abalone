@@ -16,7 +16,7 @@ public class Space : MonoBehaviour
     public void SetPiece(Transform prefab)
     {
         // can make this a bit more efficient
-        if (piece != null) Destroy(this.piece);
+        if (piece != null) Destroy(piece.gameObject);
         piece = Instantiate(prefab, transform.position, Quaternion.identity, transform).GetComponent<GamePiece>();
         // piece.transform.localScale = prefab.localScale * transform.localScale;
         piece.location = location;
