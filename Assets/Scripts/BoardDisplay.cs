@@ -80,10 +80,16 @@ public class BoardDisplay : MonoBehaviour
 		foreach (var pair in board.GetSelectables(anchorLocation))
 		{
 			var location = pair.Key; var direction = pair.Value;
-			MarkSelectable(location, direction);
+			if (location == anchorLocation) MarkAnchor(location);
+			else MarkSelectable(location, direction);
 			selectables.Add(location);
 		}
 		showingSelectables = true;
+	}
+
+	private void MarkAnchor(Vector location)
+	{
+		GetSpace(location).piece.MarkAnchor();
 	}
 
 	private void MarkSelectable(Vector location, string direction)

@@ -10,7 +10,7 @@ public class GamePiece : MonoBehaviour
 	public Color selectedColor;
 	public Color selectableColor;
 	public Color anchorColor;
-	private bool anchor;
+	// private bool anchor;
 	private bool selectable;
 	private string selectableDirection;
 	private BoardDisplay boardDisplay;
@@ -32,7 +32,6 @@ public class GamePiece : MonoBehaviour
 		}
 		else
 		{
-			anchor = true;
 			boardDisplay.Anchor(location);
 		}
 	}
@@ -47,12 +46,18 @@ public class GamePiece : MonoBehaviour
 	{
 		selectable = true;
 		selectableDirection = direction;
-		GetComponent<SpriteRenderer>().color = (anchor == true) ? selectedColor : selectableColor;
+		GetComponent<SpriteRenderer>().color = selectableColor;
+	}
+
+	public void MarkAnchor()
+	{
+		selectable = true;
+		GetComponent<SpriteRenderer>().color = selectedColor;
 	}
 
 	public void Clear()
 	{
-		selectable = false; anchor = false; // selected = false;
+		selectable = false; // anchor = false; // selected = false;
 		// selectableDirection = "";
 		GetComponent<SpriteRenderer>().color = normalColor;
 	}

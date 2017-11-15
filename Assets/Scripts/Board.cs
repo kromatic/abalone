@@ -221,6 +221,7 @@ public class Board
 		else
 		{
 			var location = column.First();
+			Debug.Log(targetLocation.x); Debug.Log(targetLocation.y);
 			SetSpace(targetLocation, GetSpace(location));
 			targetLocation = location;
 			// Debug.Log("moved first piece");
@@ -229,6 +230,7 @@ public class Board
 		foreach (var location in column.Skip(1))
 		{
 			// Debug.Log("moved piece"); Debug.Log(j); j++;
+			Debug.Log(targetLocation.x); Debug.Log(targetLocation.y);
 			SetSpace(targetLocation, GetSpace(location));
 			targetLocation = location;
 		}
