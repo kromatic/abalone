@@ -6,10 +6,15 @@ using System;
 
 public class Game : MonoBehaviour
 {
-	private Dictionary<char, int> scores;
-	private Dictionary<char, Text> displayedScores;
 	public char currentPlayer;
 	public Board board;
+	public string blackTurnMessage;
+	public string whiteTurnMessage;
+	public string blackWinsMessage;
+	public string whiteWinsMessage;
+	private Dictionary<char, int> scores;
+	private Dictionary<char, Text> displayedScores;
+	private Text gameStatus;
 
 	void Awake()
 	{
@@ -19,6 +24,7 @@ public class Game : MonoBehaviour
 		var blackScoreText = GameObject.Find("BlackScore").GetComponent<Text>();
 		var whiteScoreText = GameObject.Find("WhiteScore").GetComponent<Text>();
 		displayedScores = new Dictionary<char, Text> { {'B', blackScoreText}, {'W', whiteScoreText} };
+		gameStatus = GameObject.Find("GameStatus").GetComponent<Text>();
 	}
 
 	public void NextTurn(int scoreDelta)
@@ -32,13 +38,14 @@ public class Game : MonoBehaviour
 		else
 		{
 			currentPlayer = (currentPlayer == 'B') ? 'W' : 'B';
+			gameStatus.text = (currentPlayer == 'B') ? blackTurnMessage : whiteTurnMessage;
 		}
 	}
 
 	private void EndGame()
 	{
 		currentPlayer = 'N'; // no current player; disables board pieces
-		// show a message
+		gameStatus.text = (scores['B'] == 6) ? blackWinsMessage : whiteWinsMessage; // show a message
 	}
 	
 }
