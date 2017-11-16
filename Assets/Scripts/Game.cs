@@ -30,7 +30,7 @@ public class Game : MonoBehaviour
 	public void NextTurn(int scoreDelta)
 	{
 		scores[currentPlayer] += scoreDelta;
-		displayedScores[currentPlayer].text = scores[currentPlayer].ToString(); 
+		displayedScores[currentPlayer].text = ScoreMessage(currentPlayer);
 		if (scores[currentPlayer] == 6)
 		{
 			EndGame();
@@ -40,6 +40,12 @@ public class Game : MonoBehaviour
 			currentPlayer = (currentPlayer == 'B') ? 'W' : 'B';
 			gameStatus.text = (currentPlayer == 'B') ? blackTurnMessage : whiteTurnMessage;
 		}
+	}
+
+	private string ScoreMessage(char player)
+	{
+		string prefix = (player == 'B') ? "Black: " : "White: ";
+		return prefix + scores[player].ToString();
 	}
 
 	private void EndGame()
