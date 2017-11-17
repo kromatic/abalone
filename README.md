@@ -7,7 +7,7 @@ Implementation of the board game Abalone using Unity / C#.
 - [ ] be able to restart game
 - [ ] undo moves
 - [x] display win message
-- [ ] option to flip board between turns
+- [x] option to flip board between turns
 - [ ] AI
 - [ ] choose color to play when playing AI
 

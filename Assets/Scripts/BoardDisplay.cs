@@ -17,11 +17,12 @@ public class BoardDisplay : MonoBehaviour
 	private bool showingSelection;
 	private List<Vector> selectables;
 	private List<Vector> selection;
+	public bool flipBoard;
 
 	void Awake()
 	{
 		game = GameObject.Find("Game").GetComponent<Game>();
-		showingSelectables = showingSelection = false;
+		showingSelectables = showingSelection = flipBoard = false;
 		// create empty board
 		boardDisplay = new List<List<Space>>(); 
 		var spaceDiameter = spacePrefab.localScale.x * transform.localScale.x * paddingFactor;
@@ -142,6 +143,28 @@ public class BoardDisplay : MonoBehaviour
 		{
 			GetSpace(location).piece.Clear();
 		}
+	}
+
+	public void ChangeFlipSetting()
+	{
+		flipBoard = !flipBoard;
+		if (game.currentPlayer == 'W') FlipBoard();
+	}
+
+	public void FlipBoard()
+	{
+		StartCoroutine(FlipBoardCoroutine());
+	}
+
+	private IEnumerator FlipBoardCoroutine(int numberRotations = 50)
+	{
+		var angle = 180.0f / numberRotations;
+		for (int count = 0; count < numberRotations; count++)
+		{
+			transform.Rotate(0, 0, angle);
+			yield return null;
+		}
+		// transform.Rotate(0, 0, 180);
 	}
 
 }

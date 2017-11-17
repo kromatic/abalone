@@ -36,6 +36,7 @@ public class MoveButton : MonoBehaviour
 			// var game = GameObject.Find("Game").GetComponent<Game>();
 			boardDisplay.ClearSelection();
 			int scoreDelta = board.Move(selection, selectionDirection, enemyColumn, direction);
+			if (boardDisplay.flipBoard) boardDisplay.FlipBoard();
 			boardDisplay.UpdateView();
 			game.NextTurn(scoreDelta);
 			foreach (var direction in Board.directions.Keys)
