@@ -74,20 +74,32 @@ public class BoardDisplay : MonoBehaviour
 
 	public void DisableMoveButtons()
 	{
+		foreach (var button in MoveButtons())
+		{
+			button.Disable();
+		}
+	}
+
+	private IEnumerable<MoveButton> MoveButtons()
+	{
 		foreach (var direction in Board.directions.Keys)
 		{
 			var moveButton = GameObject.Find("Move" + direction).GetComponent<MoveButton>();
-			moveButton.Disable();
+			yield return moveButton;
 		}
 	}
 
 	public void Refresh()
 	{
+		board = game.board;
+		foreach (var button in MoveButtons())
+		{
+			button.Disable(); button.board = board;
+		}
 		UpdateView();
 		Debug.Log("updated view");
-		DisableMoveButtons();
-		Debug.Log("disabled buttons");
-		if ((int)transform.rotation.z == -90) {
+		Debug.Log(transform.eulerAngles.z);
+		if ((int)transform.eulerAngles.z % 360 == 270) {
 			FlipBoard();
 			Debug.Log("flipped board");
 		}

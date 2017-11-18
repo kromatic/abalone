@@ -10,7 +10,7 @@ public class MoveButton : MonoBehaviour
 	private List<Vector> selection;
 	private string selectionDirection;
 	private List<Vector> enemyColumn;
-	private Board board;
+	public Board board;
 	private BoardDisplay boardDisplay;
 	private Game game;
 
