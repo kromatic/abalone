@@ -38,12 +38,8 @@ public class MoveButton : MonoBehaviour
 			int scoreDelta = board.Move(selection, selectionDirection, enemyColumn, direction);
 			if (boardDisplay.flipBoard) boardDisplay.FlipBoard();
 			boardDisplay.UpdateView();
+			boardDisplay.DisableMoveButtons();
 			game.NextTurn(scoreDelta);
-			foreach (var direction in Board.directions.Keys)
-			{
-				var moveButton = GameObject.Find("Move" + direction).GetComponent<MoveButton>();
-				moveButton.Disable();
-			}
 		}
 	}
 

@@ -53,5 +53,17 @@ public class Game : MonoBehaviour
 		currentPlayer = 'N'; // no current player; disables board pieces
 		gameStatus.text = (scores['B'] == 6) ? blackWinsMessage : whiteWinsMessage; // show a message
 	}
+
+	public void Restart()
+	{
+		board = new Board();
+		foreach (var player in new List<char> {'B', 'W'})
+		{
+			Debug.Log(player);
+			scores[player] = 0;
+			displayedScores[player].text = ScoreMessage(player);
+		}
+		gameStatus.text = blackTurnMessage;
+	}
 	
 }

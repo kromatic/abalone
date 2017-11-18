@@ -72,6 +72,27 @@ public class BoardDisplay : MonoBehaviour
 		}
 	}
 
+	public void DisableMoveButtons()
+	{
+		foreach (var direction in Board.directions.Keys)
+		{
+			var moveButton = GameObject.Find("Move" + direction).GetComponent<MoveButton>();
+			moveButton.Disable();
+		}
+	}
+
+	public void Refresh()
+	{
+		UpdateView();
+		Debug.Log("updated view");
+		DisableMoveButtons();
+		Debug.Log("disabled buttons");
+		if ((int)transform.rotation.z == -90) {
+			FlipBoard();
+			Debug.Log("flipped board");
+		}
+	}
+
 	public void Anchor(Vector anchorLocation)
 	{
 		if (showingSelectables) ClearSelectables();
