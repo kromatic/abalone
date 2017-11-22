@@ -1,10 +1,10 @@
 ﻿// This class contains the game state, such as the current player, scores, etc.
 
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using System;
 
 public class Game : MonoBehaviour
 {

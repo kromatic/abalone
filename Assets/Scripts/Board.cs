@@ -1,20 +1,38 @@
+// The Board class is the logical representation of the Abalone game board.
+// This is NOT a MonoBehaviour
+// Internally, the board is just a 2D List of chars.
+
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using UnityEngine;
 
 public class Board
 {
-	private List<List<char>> board;
+	// height is the number of rows in the board.
 	public static int height;
+
+	// rowLengths[i] is the number of spaces in the ith row.
 	public static List<int> rowLengths;
-	public static Dictionary<string, Vector> directions;
+
+	// Directions on the board are represented by the strings "NW", "NE", "E", "SE", "SW", "W".
+	public static IList<string> Directions { get; private set; }
+
+	// directionVectors is a mapping from these strings to corresponding vectors for the upper half of the board.
+	private static Dictionary<string, Vector> directionVectors;
+
+	// 2D List representing spaces and pieces on the board. 'O' is an empty, and 'B' / 'W' represent player pieces.
+	private List<List<char>> board;
 
 	static Board()
 	{
 		height = 9;
 		rowLengths = new List<int> {5, 6, 7, 8, 9, 8, 7, 6, 5};
-		directions = new Dictionary<string, Vector>
+		Directions = new List<string> {"NW", "NE", "E", "SE", "SW", "W"}.AsReadOnly();
+
+		// Again, this mapping is for the upper half of the board.
+		directionVectors = new Dictionary<string, Vector>
 		{
 			{"NW", new Vector(-1, -1)},
 			{"NE", new Vector(-1,  0)},
@@ -27,7 +45,7 @@ public class Board
 
 	public Board()
 	{
-		// first create board with all spaces empty
+		// First create a board with all spaces empty.
 		board = new List<List<char>>();
 		for (int i = 0; i < height; i++)
 		{
@@ -35,14 +53,16 @@ public class Board
 			board.Add(row);
 		}
 
-		// then set up pieces in initial locations
+		// Then set up pieces in initial locations.
 		foreach (int i in new List<int> {0, 1, 2, 6, 7, 8})
 		{
+			// White pieces start on the upper half.
 			var piece = (i < 3) ? 'W' : 'B';
 			for (int j = 0; j < board[i].Count; j++)
 			{
 				if ((i == 2 || i == 6) && (j < 2 || j > 4))
 				{
+					// These spaces remain empty. Only 3 pieces start in each of rows 2 and 6.
 					continue;
 				}
 				board[i][j] = piece;
@@ -50,29 +70,52 @@ public class Board
 		}
 	}
 
-	public IEnumerable<IList<char>> View()
+
+	// This helper function returns an iterator over all spaces in the board.
+	// It is used by BoardDisplay to update the board shown to the user.
+	public IEnumerable<IEnumerable<char>> View()
 	{
-		foreach (var row in board)
-		{
-			yield return row.AsReadOnly();
-		}
+		return
+			from row in board select
+			from space in row select space;
 	}
 
-	public IEnumerable<KeyValuePair<Vector, string>> GetSelectables(Vector anchorLocation)
+	// Returns iterator of (location, direction) pairs indicating which pieces can be
+	// used to complete a selection given the location of the anchoring piece.
+	// That is, walking from the anchor in the direction until the location gives a valid selection.
+	public IEnumerable<Tuple<Vector, string>> GetSelectables(Vector anchorLocation)
 	{
+		// First get color of anchoring piece.
 		var anchor = GetSpace(anchorLocation);
-		yield return new KeyValuePair<Vector, string>(anchorLocation, "");
-		foreach (var direction in directions.Keys)
+
+		// The anchor itself completes a singleton selection.
+		yield return Tuple.Create(anchorLocation, "");
+
+		// Iterate over possible directions.
+		// Walk in each direction until a maximum possible selection (starting with the anchor) is reached,
+		// yielding the location of each piece along the way together with the direction.
+		// These pieces correspond to all possible selections.
+
+		// A selection can contain at most 3 consecutive pieces of the same color.
+		// So to reach a maximum possible selection we walk as long as
+		// 1) we only encounter pieces of the same color as the anchor,
+		// 2) we do not hit the edge of the board, and
+		// 3) our distance from the anchor is less than 3.
+		foreach (var direction in Directions)
 		{
 			var current = anchorLocation;
-			var distance = 1;
-			while (distance < 3)
+
+			// Ensure our selection is at most 3 pieces.
+			for (var distance = 1; distance < 3; distance++)
 			{
+				// Get the location of the next space in this direction.
 				current = GetNeighborLocation(current, direction);
+				// If location is off the board we are done.
 				if (!ValidLocation(current)) break;
+				// If an enemy piece is at the location we are also done.
 				if (GetSpace(current) != anchor) break;
-				yield return new KeyValuePair<Vector, string>(current, direction);
-				distance++;
+				// Otherwise the location holds a piece that can complete a valid selection starting at the anchor.
+				yield return Tuple.Create(current, direction);
 			}
 		}
 	}
