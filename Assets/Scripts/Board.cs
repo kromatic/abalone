@@ -80,7 +80,21 @@ public class Board
 			from space in row select space;
 	}
 
-	// Returns iterator of (location, direction) pairs indicating which pieces can be
+	// Get a list of consecutive locations (a column) starting at start and going in direction until end.
+	public static List<Vector> GetColumn(Vector start, Vector end, string direction)
+	{
+		var column = new List<Vector>();
+		var current = start;
+		while (current != end)
+		{
+			column.Add(current);
+			current = GetNeighborLocation(current, direction);
+		}
+		column.Add(current);
+		return column;
+	}
+
+	// GetSelectables returns iterator over (location, direction) pairs indicating which pieces can be
 	// used to complete a selection given the location of the anchoring piece.
 	// That is, walking from the anchor in the direction until the location gives a valid selection.
 	public IEnumerable<Tuple<Vector, string>> GetSelectables(Vector anchorLocation)
@@ -120,29 +134,159 @@ public class Board
 		}
 	}
 
-	public char GetSpace(Vector loc)
+	// GetMoves returns an iterator over possible moves given a selection. The iterator yields pairs representing valid moves.
+	// Each pair consists of a direction in which the selection can be moved and the associated column of enemy pieces
+	// (which may be empty) that would be pushed by moving the column in that direction.
+	public IEnumerable<Tuple<string, List<Vector>>> GetMoves(List<Vector> selection, string selectionDirection)
 	{
-		return board[loc.x][loc.y];
+		// Debug.Log("selectionDirection: " + selectionDirection);
+		foreach(var direction in Directions)
+		{
+			// Create an empty list in which CheckMove will store the enemy column to be pushed.
+			var enemyColumn = new List<Vector>();
+			if (CheckMove(selection, selectionDirection, direction, enemyColumn))
+			{
+				yield return Tuple.Create(direction, enemyColumn);
+			}
+		}
 	}
 
-
-	public static List<Vector> GetColumn(Vector start, Vector end, string direction)
+	// Move performs the specified move on the board and returns the number of enemy pieces displaced.
+	public int Move(List<Vector> selection, string selectionDirection, List<Vector> enemyColumn, string direction)
 	{
-		var column = new List<Vector>();
-		var current = start;
-		while (current != end)
+		// We first create an enumeration of the seleciton and enemy column such that the pieces farthest
+		// in the direction of motion are first.
+		var orderedSelection = (selectionDirection == direction) ? Enumerable.Reverse(selection) : selection;
+		var entireColumn = Enumerable.Concat(Enumerable.Reverse(enemyColumn), orderedSelection);
+
+		// If the selection and direction of motion are on the same axis, we have to do an in-line move.
+		// Otherwise, a simple sidestep is required.
+		if (SameAxis(selectionDirection, direction))
 		{
+			return MoveColumnInLine(entireColumn, direction);
+		}
+		else
+		{
+			MoveColumnSideStep(entireColumn, direction);
+			// A side-step move never displaces enemy pieces.
+			return 0;
+		}
+	}
+
+	// Helper method for checking if a move is valid.
+	private bool CheckMove(List<Vector> selection, string selectionDirection, string direction, List<Vector> enemyColumn)
+	{
+		// If the move is being made along the axis of selection, then we need to check the Sumito condition.
+		if (SameAxis(selectionDirection, direction))
+		{
+			// Debug.Log("doing sumito check");
+			var enemyColor = (GetSpace(selection[0]) == 'B') ? 'W' : 'B';
+			var selectionEdge = (selectionDirection == direction) ? selection[selection.Count - 1] : selection[0];
+			var enemyColumnStart = GetNeighborLocation(selectionEdge, direction);
+			return Sumito(enemyColumnStart, direction, enemyColor, selection.Count - 1, enemyColumn);
+		}
+
+		// Otherwise we just have a side-step move, so we just make sure the target spaces are all valid and empty.
+		// Debug.Log("doing regular check");
+		foreach (var location in selection)
+		{
+			var neighborLocation = GetNeighborLocation(location, direction);
+			if (!ValidLocation(neighborLocation) || GetSpace(neighborLocation) != 'O') return false;
+		}
+		// Debug.Log("move checks out");
+		return true;
+	}
+
+	// Helper method for checking if the Sumito condition holds. Enemy pieces are accumulated in column.
+	private bool Sumito(Vector start, string direction, char color, int bound, List<Vector> column)
+	{
+		var current = start;
+		// We can keep going as long as the column so far is smaller than the bound.
+		while (column.Count < bound)
+		{
+			// If we encounter the edge of the board then the column so far has to be nonempty.
+			if (!ValidLocation(current)) return column.Count > 0;
+			var space = GetSpace(current);
+			// An empty space means we are good.
+			if (space == 'O') return true;
+			// A piece of opposite color means we are sandwiched - not good.
+			if (space != color) return false;
+			// Otherwise we encountered a piece of the desired color and can add it.
 			column.Add(current);
 			current = GetNeighborLocation(current, direction);
 		}
-		column.Add(current);
-		return column;
+		// If we did not return yet, then we have an opposing column of maximum possible size.
+		// Thus the current space has to be empty or off the board.
+		return !ValidLocation(current) || GetSpace(current) == 'O';
 	}
 
+	// Heper method for checking of two directions lie on the same axis.
+	private static bool SameAxis(string direction1, string direction2)
+	{
+		if (direction1 == direction2) return true;
+
+		// Sort the strings to simplify the logic.
+		if (string.Compare(direction1, direction2) > 0)
+		{
+			var temp = direction1; direction1 = direction2; direction2 = temp;
+		}
+		if (direction1 == "E" && direction2 == "W") return true;
+		if (direction1 == "NW" && direction2 == "SE") return true;
+		if (direction1 == "NE" && direction2 == "SW") return true;
+		return false;
+	}
+
+	// Helper method for moving a column of pieces to the side.
+	private void MoveColumnSideStep(IEnumerable<Vector> column, string direction)
+	{
+		foreach(var location in column)
+		{
+			SetSpace(GetNeighborLocation(location, direction), GetSpace(location));
+			SetSpace(location, 'O');
+			// Debug.Log("moved piece and should have cleared space");
+		}
+	}
+
+	// Helper method for moving a column of pieces in line.
+	private int MoveColumnInLine(IEnumerable<Vector> column, string direction)
+	{
+		// The column should already be sorted such that the pieces farthest along the direction come first.
+		int score = 0;
+		var firstLocation = column.First();
+		var targetLocation = GetNeighborLocation(firstLocation, direction);
+		// If the first target location is off the board, that means an enemy piece will be displaced.
+		if (!ValidLocation(targetLocation))
+		{
+			score = 1;
+		}
+		// Otherwise we proceed as usual.
+		else
+		{
+			SetSpace(targetLocation, GetSpace(firstLocation));
+		}
+
+		// Now we simply push the remaining pieces. None of these will have exceptional cases.
+		// Because we are moving in line, the remaining targeted locations are all in the column itself.
+		targetLocation = firstLocation;
+		// Iterate over locations in the column that haven't been moved yet.
+		foreach (var location in column.Skip(1))
+		{
+			SetSpace(targetLocation, GetSpace(location));
+			targetLocation = location;
+		}
+		// The last location in the column will be empty after the move.
+		SetSpace(targetLocation, 'O');
+		return score;
+	}
+
+	// Helper method for getting the location of a neighbor of a cell in a particular direction.
 	private static Vector GetNeighborLocation(Vector location, string direction)
 	{
-		if (direction == "") return new Vector(-1, -1); // throwaway value when direction unnecessary
-		var delta = directions[direction];
+		// If direction is a throwaway value return a throwaway value as well.
+		if (direction == "") return new Vector(-1, -1);
+		// Get the direction vector for the upper half of the board.
+		var delta = directionVectors[direction];
+		// Adjust the vector based on the actual location on the board.
 		if (location.x == 4 && direction[0] == 'S')
 		{
 			delta.y--;
@@ -154,132 +298,17 @@ public class Board
 		return location + delta;
 	}
 
+	// Helper method to check if a location is valid.
 	private static bool ValidLocation(Vector loc)
 	{
 		return 0 <= loc.x && loc.x < height && 0 <= loc.y && loc.y < rowLengths[loc.x];
 	}
 
-	public IEnumerable<KeyValuePair<string, List<Vector>>> GetMoves(List<Vector> selection, string selectionDirection)
-	{
-		// Debug.Log("selectionDirection: " + selectionDirection);
-		foreach(var direction in directions.Keys)
-		{
-			var enemyColumn = new List<Vector>();
-			if (CheckMove(selection, selectionDirection, direction, enemyColumn))
-			{
-				yield return new KeyValuePair<string, List<Vector>>(direction, enemyColumn);
-			}
-		}
-	}
 
-	private bool CheckMove(List<Vector> selection, string selectionDirection, string direction, List<Vector> enemyColumn)
+	// Private methods for getting and setting spaces.
+	private char GetSpace(Vector loc)
 	{
-		if (SameAxis(selectionDirection, direction))
-		{
-			// Debug.Log("doing sumito check");
-			var enemyColor = (GetSpace(selection[0]) == 'B') ? 'W' : 'B';
-			var selectionEdge = (selectionDirection == direction) ? selection[selection.Count - 1] : selection[0];
-			var enemyColumnStart = GetNeighborLocation(selectionEdge, direction);
-			return Sumito(enemyColumnStart, direction, enemyColor, selection.Count - 1, enemyColumn);
-		}
-
-		// if a side step move, just make sure target spaces are empty
-		// Debug.Log("doing regular check");
-		foreach (var location in selection)
-		{
-			var neighborLocation = GetNeighborLocation(location, direction);
-			if (!ValidLocation(neighborLocation) || GetSpace(neighborLocation) != 'O') return false;
-		}
-		// Debug.Log("move checks out");
-		return true;
-	}
-
-	private bool Sumito(Vector start, string direction, char color, int bound, List<Vector> column)
-	{
-		var current = start;
-		while (column.Count < bound)
-		{
-			if (!ValidLocation(current)) return column.Count > 0; // edge of board: ok as long as column nonempty
-			var space = GetSpace(current);
-			if (space == 'O') return true; // empty space - ok
-			if (space != color) return false; // opposite color piece in sequence - not ok
-			// remaining case: piece of this color
-			column.Add(current);
-			current = GetNeighborLocation(current, direction);
-		}
-		// if we did not return yet, then we have an opposing column of maximum possible size
-		// current space has to be empty or edge of board
-		return !ValidLocation(current) || GetSpace(current) == 'O';
-	}
-
-	private static bool SameAxis(string direction1, string direction2)
-	{
-		if (direction1 == direction2) return true;
-		// sort strings if necessary
-		// Debug.Log(dir1);
-		// Debug.Log(dir2);
-		if (string.Compare(direction1, direction2) > 0)
-		{
-			var temp = direction1; direction1 = direction2; direction2 = temp;
-		}
-		if (direction1 == "E" && direction2 == "W") return true;
-		if (direction1 == "NW" && direction2 == "SE") return true;
-		if (direction1 == "NE" && direction2 == "SW") return true;
-		return false;
-	}
-
-	public int Move(List<Vector> selection, string selectionDirection, List<Vector> enemyColumn, string direction)
-	{
-		var orderedSelection = (selectionDirection == direction) ? Enumerable.Reverse(selection) : selection;
-		var entireColumn = Enumerable.Concat(Enumerable.Reverse(enemyColumn), orderedSelection);
-		if (SameAxis(selectionDirection, direction))
-		{
-			return MoveColumnInLine(entireColumn, direction);
-		}
-		else
-		{
-			MoveColumnSideStep(entireColumn, direction);
-			return 0;
-		}
-	}
-
-	private void MoveColumnSideStep(IEnumerable<Vector> column, string direction)
-	{
-		foreach(var location in column)
-		{
-			SetSpace(GetNeighborLocation(location, direction), GetSpace(location));
-			SetSpace(location, 'O');
-			Debug.Log("moved piece and should have cleared space");
-		}
-	}
-
-	private int MoveColumnInLine(IEnumerable<Vector> column, string direction)
-	{
-		int score = 0;
-		var firstLocation = column.First();
-		var targetLocation = GetNeighborLocation(firstLocation, direction);
-		if (!ValidLocation(targetLocation))
-		{
-			score = 1;
-		}
-		else
-		{
-			// Debug.Log(targetLocation.x); Debug.Log(targetLocation.y);
-			SetSpace(targetLocation, GetSpace(firstLocation));
-			// Debug.Log("moved first piece");
-		}
-		targetLocation = firstLocation;
-		// int j = 2;
-		foreach (var location in column.Skip(1))
-		{
-			// Debug.Log("moved piece"); Debug.Log(j); j++;
-			// Debug.Log(targetLocation.x); Debug.Log(targetLocation.y);
-			SetSpace(targetLocation, GetSpace(location));
-			targetLocation = location;
-		}
-		SetSpace(targetLocation, 'O');
-		Debug.Log("should have cleared a space");
-		return score;
+		return board[loc.x][loc.y];
 	}
 
 	private void SetSpace(Vector location, char space)
@@ -288,6 +317,8 @@ public class Board
 	}
 }
 
+// A struct for representing integral coordinates in a plane.
+// Used to represent locations on the board as well vector directions on the board.
 public struct Vector
 {
 	public int x, y;
