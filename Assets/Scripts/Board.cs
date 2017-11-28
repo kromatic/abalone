@@ -140,7 +140,7 @@ public class Board
 	public IEnumerable<Tuple<string, List<Vector>>> GetMoves(List<Vector> selection, string selectionDirection)
 	{
 		// Debug.Log("selectionDirection: " + selectionDirection);
-		foreach(var direction in Directions)
+		foreach (var direction in Directions)
 		{
 			// Create an empty list in which CheckMove will store the enemy column to be pushed.
 			var enemyColumn = new List<Vector>();
@@ -368,4 +368,41 @@ public struct Vector
 	{
 		return x + y;
 	}
+}
+
+// Struct for keeping track of a selection.
+public struct Selection
+{
+	// The locations that are part of the selection, in consecutive order.
+	public List<Vector> Locations { get; private set; }
+
+	// The direction of the selection, i.e. direction from first to last piece in Selection.
+	public string Direction { get; private set; }
+
+	public Selection(List<Vector> locations, string direction)
+	{
+		Locations = locations;
+		Direction = direction;
+	}
+}
+
+// Struct for keeping track of a move.
+public struct Move
+{
+	// The selection to be moved.
+	public Selection Selection { get; private set; }
+
+	// The direction in which to move.
+	public string Direction { get; private set; }
+
+	// Whether or not the move is a sidestep move. If not, it is an in-line move and can be performed differently. 
+	public bool Sidestep { get; private set; }
+
+	public Move(Selection selection, string direction, bool sidestep)
+	{
+		Selection = selection;
+		Direction = direction;
+		Sidestep = sidestep;
+	}
+
 }
