@@ -137,17 +137,13 @@ public class Board
 	// GetMoves returns an iterator over possible moves given a selection. The iterator yields pairs representing valid moves.
 	// Each pair consists of a direction in which the selection can be moved and the associated column of enemy pieces
 	// (which may be empty) that would be pushed by moving the column in that direction.
-	public IEnumerable<Tuple<string, List<Vector>>> GetMoves(List<Vector> selection, string selectionDirection)
+	public IEnumerable<Move> GetMoves(Selection selection)
 	{
 		// Debug.Log("selectionDirection: " + selectionDirection);
 		foreach (var direction in Directions)
 		{
-			// Create an empty list in which CheckMove will store the enemy column to be pushed.
-			var enemyColumn = new List<Vector>();
-			if (CheckMove(selection, selectionDirection, direction, enemyColumn))
-			{
-				yield return Tuple.Create(direction, enemyColumn);
-			}
+			var move = CheckMove(selection, direction);
+			if (move != null) yield return move;
 		}
 	}
 
@@ -174,30 +170,38 @@ public class Board
 	}
 
 	// Helper method for checking if a move is valid.
-	private bool CheckMove(List<Vector> selection, string selectionDirection, string direction, List<Vector> enemyColumn)
+	//Returns insance of Move if valid otherwise returns null.
+	private Move CheckMove(Selection selection, string direction)
 	{
 		// If the move is being made along the axis of selection, then we need to check the Sumito condition.
-		if (SameAxis(selectionDirection, direction))
+		if (SameAxis(selection.Direction, direction))
 		{
 			// Debug.Log("doing sumito check");
-			var enemyColor = (GetSpace(selection[0]) == 'B') ? 'W' : 'B';
-			var selectionEdge = (selectionDirection == direction) ? selection[selection.Count - 1] : selection[0];
+			var enemyColor = (selection.Color == 'B') ? 'W' : 'B';
+			var edgeIndex = selection.Locations.Count - 1;
+			var selectionEdge = (selection.Direction == direction) ? selection.Locations[edgeIndex] : selection.Locations[0];
 			var enemyColumnStart = GetNeighborLocation(selectionEdge, direction);
-			return Sumito(enemyColumnStart, direction, enemyColor, selection.Count - 1, enemyColumn);
+			var enemyLimit = edgeIndex;
+			var enemyColumn = Sumito(enemyColumnStart, direction, enemyColor, enemyLimit);
+			if (enemyColumn != null)
+			{
+				return new Move(selection, enemyColumn, direction);
+			}
 		}
 
 		// Otherwise we just have a side-step move, so we just make sure the target spaces are all valid and empty.
 		// Debug.Log("doing regular check");
-		foreach (var location in selection)
+		foreach (var location in selection.Locations)
 		{
 			var neighborLocation = GetNeighborLocation(location, direction);
-			if (!ValidLocation(neighborLocation) || GetSpace(neighborLocation) != 'O') return false;
+			if (!ValidLocation(neighborLocation) || GetSpace(neighborLocation) != 'O') return null;
 		}
 		// Debug.Log("move checks out");
-		return true;
+		return new Move(selection, null, direction);
 	}
 
-	// Helper method for checking if the Sumito condition holds. Enemy pieces are accumulated in column.
+	// Helper method for checking if the Sumito condition holds.
+	// If so, the enemy pieces that can be pushed are returned. Otherwise null is returned.
 	private bool Sumito(Vector start, string direction, char color, int bound, List<Vector> column)
 	{
 		var current = start;
@@ -374,35 +378,49 @@ public struct Vector
 public struct Selection
 {
 	// The locations that are part of the selection, in consecutive order.
-	public List<Vector> Locations { get; private set; }
+	public ReadOnlyCollection<Vector> Locations { get { return locations.AsReadOnly(); } }
 
 	// The direction of the selection, i.e. direction from first to last piece in Selection.
 	public string Direction { get; private set; }
 
-	public Selection(List<Vector> locations, string direction)
+	// The color of the pieces in the selection.
+	public char Color { get; private set; }
+
+	// Private field backing Locations.
+	private List<Vector> locations;
+
+	public Selection(List<Vector> locations, string direction, char color)
 	{
-		Locations = locations;
+		this.locations = locations;
 		Direction = direction;
+		Color = color;
 	}
 }
 
 // Struct for keeping track of a move.
-public struct Move
+public class Move
 {
 	// The selection to be moved.
 	public Selection Selection { get; private set; }
 
+	// The enemy column to be pushed.
+	public ReadOnlyCollection<Vector> EnemyColumn { get { return enemyColumn.AsReadOnly(); } }
+
 	// The direction in which to move.
 	public string Direction { get; private set; }
 
-	// Whether or not the move is a sidestep move. If not, it is an in-line move and can be performed differently. 
-	public bool Sidestep { get; private set; }
+	// Private field backing EnemyColumn.
+	private List<Vector> enemyColumn;
 
-	public Move(Selection selection, string direction, bool sidestep)
+	// Whether or not the move is a sidestep move. If not, it is an in-line move and can be performed differently. 
+	// public bool Sidestep { get; private set; }
+
+	public Move(Selection selection, List<Vector> enemyColumn, string direction) //, bool sidestep)
 	{
 		Selection = selection;
+		this.enemyColumn = enemyColumn;
 		Direction = direction;
-		Sidestep = sidestep;
+		// Sidestep = sidestep;
 	}
 
 }
