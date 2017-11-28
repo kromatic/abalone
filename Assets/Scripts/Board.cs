@@ -153,14 +153,14 @@ public class Board
 		// If enemyColumn is null that means that the move is a sidestep.
 		if (move.EnemyColumn == null)
 		{
-			MoveColumnSideStep(move.Selection.Locations, move.Direction);
+			MoveColumnSideStep(move.Selection.Column, move.Direction);
 		}
 		// Otherwise we have to perform an in-line move.
 		else
 		{
 			// We first create an enumeration of the seleciton and enemy column such that the pieces farthest
 			// in the direction of motion are first.
-			IEnumerable<Vector> orderedSelection = move.Selection.Locations;
+			IEnumerable<Vector> orderedSelection = move.Selection.Column;
 			// If the direction of motion coincides with selection, we need to reverse it.
 			if (move.Selection.Direction == move.Direction) orderedSelection = Enumerable.Reverse(orderedSelection);
 			// Proper order is to move the reversed enemyColumn first and then the orderedSelection.
@@ -178,8 +178,8 @@ public class Board
 		{
 			// Debug.Log("doing sumito check");
 			var enemyColor = (selection.Color == 'B') ? 'W' : 'B';
-			var edgeIndex = selection.Locations.Count - 1;
-			var selectionEdge = (selection.Direction == direction) ? selection.Locations[edgeIndex] : selection.Locations[0];
+			var edgeIndex = selection.Column.Count - 1;
+			var selectionEdge = (selection.Direction == direction) ? selection.Column[edgeIndex] : selection.Column[0];
 			var enemyColumnStart = GetNeighborLocation(selectionEdge, direction);
 			var enemyLimit = edgeIndex;
 			var enemyColumn = new List<Vector>();
@@ -191,7 +191,7 @@ public class Board
 
 		// Otherwise we just have a side-step move, so we just make sure the target spaces are all valid and empty.
 		// Debug.Log("doing regular check");
-		foreach (var location in selection.Locations)
+		foreach (var location in selection.Column)
 		{
 			var neighborLocation = GetNeighborLocation(location, direction);
 			if (!ValidLocation(neighborLocation) || GetSpace(neighborLocation) != 'O') return null;
@@ -243,7 +243,7 @@ public class Board
 	}
 
 	// Helper method for moving a column of pieces to the side.
-	private void MoveColumnSideStep(IEnumerable<Vector> column, string direction)
+	private int MoveColumnSideStep(IEnumerable<Vector> column, string direction)
 	{
 		foreach(var location in column)
 		{
@@ -251,6 +251,7 @@ public class Board
 			SetSpace(location, 'O');
 			// Debug.Log("moved piece and should have cleared space");
 		}
+		return 0;
 	}
 
 	// Helper method for moving a column of pieces in line.
@@ -380,7 +381,7 @@ public struct Vector
 public struct Selection
 {
 	// The locations that are part of the selection, in consecutive order.
-	public ReadOnlyCollection<Vector> Locations { get { return locations.AsReadOnly(); } }
+	public ReadOnlyCollection<Vector> Column { get { return column.AsReadOnly(); } }
 
 	// The direction of the selection, i.e. direction from first to last piece in Selection.
 	public string Direction { get; private set; }
@@ -388,12 +389,12 @@ public struct Selection
 	// The color of the pieces in the selection.
 	public char Color { get; private set; }
 
-	// Private field backing Locations.
-	private List<Vector> locations;
+	// Private field backing Column.
+	private List<Vector> column;
 
-	public Selection(List<Vector> locations, string direction, char color)
+	public Selection(List<Vector> column, string direction, char color)
 	{
-		this.locations = locations;
+		this.column = column;
 		Direction = direction;
 		Color = color;
 	}
