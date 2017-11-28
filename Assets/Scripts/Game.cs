@@ -14,7 +14,7 @@ public class Game : MonoBehaviour
 
 	// Board references instance of logical representation of game board.
 	// Cannot be set publicly. 
-	public Board Board {get; private set; }
+	public Board Board { get; private set; }
 	
 	// Common strings used to display information to user stored for convenience.
 	public string blackTurnMessage;

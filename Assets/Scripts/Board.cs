@@ -143,7 +143,7 @@ public class Board
 		foreach (var direction in Directions)
 		{
 			var move = CheckMove(selection, direction);
-			if (move != null) yield return move;
+			yield return move;
 		}
 	}
 
@@ -167,6 +167,12 @@ public class Board
 			var entireColumn = Enumerable.Concat(Enumerable.Reverse(move.EnemyColumn), orderedSelection);
 			return MoveColumnInLine(entireColumn, move.Direction);
 		}
+	}
+
+	// Helper for getting a space on the board.
+	public char GetSpace(Vector loc)
+	{
+		return board[loc.x][loc.y];
 	}
 
 	// Helper method for checking if a move is valid.
@@ -312,12 +318,7 @@ public class Board
 	}
 
 
-	// Private methods for getting and setting spaces.
-	private char GetSpace(Vector loc)
-	{
-		return board[loc.x][loc.y];
-	}
-
+	// Private methods for setting a space.
 	private void SetSpace(Vector location, char space)
 	{
 		board[location.x][location.y] = space;

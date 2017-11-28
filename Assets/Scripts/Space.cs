@@ -5,6 +5,8 @@ using UnityEngine;
 public class Space : MonoBehaviour
 {
 	public GamePiece piece;
+    public Transform blackPrefab;
+	public Transform whitePrefab;
     public Vector location;
 
     public void Clear()
