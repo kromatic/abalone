@@ -148,24 +148,24 @@ public class Board
 	}
 
 	// Move performs the specified move on the board and returns the number of enemy pieces displaced.
-	public int Move(List<Vector> selection, string selectionDirection, List<Vector> enemyColumn, string direction)
+	public int Move(Move move)
 	{
-		// We first create an enumeration of the seleciton and enemy column such that the pieces farthest
-		// in the direction of motion are first.
-		var orderedSelection = (selectionDirection == direction) ? Enumerable.Reverse(selection) : selection;
-		var entireColumn = Enumerable.Concat(Enumerable.Reverse(enemyColumn), orderedSelection);
-
-		// If the selection and direction of motion are on the same axis, we have to do an in-line move.
-		// Otherwise, a simple sidestep is required.
-		if (SameAxis(selectionDirection, direction))
+		// If enemyColumn is null that means that the move is a sidestep.
+		if (move.EnemyColumn == null)
 		{
-			return MoveColumnInLine(entireColumn, direction);
+			MoveColumnSideStep(move.Selection.Locations, move.Direction);
 		}
+		// Otherwise we have to perform an in-line move.
 		else
 		{
-			MoveColumnSideStep(entireColumn, direction);
-			// A side-step move never displaces enemy pieces.
-			return 0;
+			// We first create an enumeration of the seleciton and enemy column such that the pieces farthest
+			// in the direction of motion are first.
+			IEnumerable<Vector> orderedSelection = move.Selection.Locations;
+			// If the direction of motion coincides with selection, we need to reverse it.
+			if (move.Selection.Direction == move.Direction) orderedSelection = Enumerable.Reverse(orderedSelection);
+			// Proper order is to move the reversed enemyColumn first and then the orderedSelection.
+			var entireColumn = Enumerable.Concat(Enumerable.Reverse(move.EnemyColumn), orderedSelection);
+			return MoveColumnInLine(entireColumn, move.Direction);
 		}
 	}
 
@@ -182,8 +182,8 @@ public class Board
 			var selectionEdge = (selection.Direction == direction) ? selection.Locations[edgeIndex] : selection.Locations[0];
 			var enemyColumnStart = GetNeighborLocation(selectionEdge, direction);
 			var enemyLimit = edgeIndex;
-			var enemyColumn = Sumito(enemyColumnStart, direction, enemyColor, enemyLimit);
-			if (enemyColumn != null)
+			var enemyColumn = new List<Vector>();
+			if (Sumito(enemyColumnStart, direction, enemyColor, enemyLimit, enemyColumn))
 			{
 				return new Move(selection, enemyColumn, direction);
 			}
@@ -201,9 +201,10 @@ public class Board
 	}
 
 	// Helper method for checking if the Sumito condition holds.
-	// If so, the enemy pieces that can be pushed are returned. Otherwise null is returned.
+	// Enemy pieces to be pushed are added to the List column.
 	private bool Sumito(Vector start, string direction, char color, int bound, List<Vector> column)
 	{
+		// var column = new List<Vector>();
 		var current = start;
 		// We can keep going as long as the column so far is smaller than the bound.
 		while (column.Count < bound)
@@ -220,6 +221,7 @@ public class Board
 			current = GetNeighborLocation(current, direction);
 		}
 		// If we did not return yet, then we have an opposing column of maximum possible size.
+		// (This is at least 1, since we never call Sumito on a singleton selection.)
 		// Thus the current space has to be empty or off the board.
 		return !ValidLocation(current) || GetSpace(current) == 'O';
 	}
