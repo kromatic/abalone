@@ -43,13 +43,14 @@ public class Space : MonoBehaviour
     // SetPiece sets a piece at this space.
     public void SetPiece(char color)
     {
+        print("setpiece called");
         // If we already have a piece of this color set, we are done.
-        if (piece != null && piece.color == color) return;
+        if (piece != null && piece.color == color) { print("done early"); return; }
 
         // Otherwise we need to set a piece.
 
         // If a piece did exist (of the opposite color), then destroy it.
-        if (piece != null) Destroy(piece.gameObject);
+        if (piece != null) { print("destroying a piece"); Destroy(piece.gameObject); }
         // Now we need to create the new piece.
         var prefab = (color == 'B') ? blackPrefab : whitePrefab;
         print("creating a piece");

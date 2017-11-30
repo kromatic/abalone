@@ -111,6 +111,7 @@ public class BoardDisplay : MonoBehaviour
 					// Set the appropriate piece at this space.
 					boardDisplay[i][j].SetPiece(slot);
 				}
+				j++;
 			}
 			//print("\n");
 			i++;
