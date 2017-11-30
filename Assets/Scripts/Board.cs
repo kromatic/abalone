@@ -408,7 +408,14 @@ public class Move
 	public Selection Selection { get; private set; }
 
 	// The enemy column to be pushed.
-	public ReadOnlyCollection<Vector> EnemyColumn { get { return enemyColumn.AsReadOnly(); } }
+	public ReadOnlyCollection<Vector> EnemyColumn
+	{
+		get
+		{
+			if (enemyColumn == null) return null;
+			else return enemyColumn.AsReadOnly();
+		}
+	}
 
 	// The direction in which to move.
 	public string Direction { get; private set; }
