@@ -40,6 +40,13 @@ public class BoardDisplay : MonoBehaviour
 	{
 		// Grab reference to game object.
 		game = GameObject.Find("Game").GetComponent<Game>();
+		// Then grab the movement buttons.
+		moveButtons = new List<MoveButton>();
+		foreach (var direction in Board.Directions)
+		{
+			var moveButton = GameObject.Find("Move" + direction).GetComponent<MoveButton>();
+			moveButtons.Add(moveButton);
+		}
 		// All boolean flags start out as false.
 		showingSelectables = showingSelected = FlipEveryTurn = false;
 		
@@ -79,16 +86,8 @@ public class BoardDisplay : MonoBehaviour
 
 	void Start()
 	{
-		// First update the view, which will pull the initial configuration of pieces from the logical board.
+		// Update the view, which will pull the initial configuration of pieces from the logical board.
 		UpdateView();
-
-		// Then grab the movement buttons.
-		moveButtons = new List<MoveButton>();
-		foreach (var direction in Board.Directions)
-		{
-			var moveButton = GameObject.Find("Move" + direction).GetComponent<MoveButton>();
-			moveButtons.Add(moveButton);
-		}
 	}
 
 	// UpdateView redraws the game pieces on the board based on the state of the logical board.
