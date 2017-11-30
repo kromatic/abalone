@@ -10,11 +10,25 @@ public class Space : MonoBehaviour
     public GamePiece piece;
 
     // The location of this space on the board.
-    public Vector location;
+    public Vector Location
+    {
+        get
+        {
+            return Location;
+        }
+        set
+        {
+            if (!locationSet) { Location = value; locationSet = true; }
+            else throw new System.AccessViolationException("Location of a space cannot be changed.");
+        }
+    }
 
     // Prefabs used for the black and white pieces.
     public Transform blackPrefab;
     public Transform whitePrefab;
+
+    // Boolean flag indicating whether or not location has already been set.
+    private bool locationSet = false;
 
     // Clear makes this space empty by destroying the game piece if it exists.
     public void Clear()

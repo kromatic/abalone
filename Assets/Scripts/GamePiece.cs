@@ -1,47 +1,66 @@
-﻿using System.Collections;
+﻿// GamePiece is a MonoBehaviour class representing game pieces on the displayed board.
+
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class GamePiece : MonoBehaviour
 {
-	public Vector location;
+	// The color of the piece ('B' or 'W').
 	public char color;
-	public Color normalColor;
-	public Color selectedColor;
-	public Color selectableColor;
-	public Color anchorColor;
-	// private bool anchor;
-	private bool selectable;
-	private string selectableDirection;
-	private BoardDisplay boardDisplay;
-	private Game game;
-	// private bool selected = false;
 
+	// The graphical colors used to represent the state of a piece.
+	public Color normalColor;
+	public Color selectableColor;
+	public Color selectedColor;
+
+	// Reference to the game object.
+	private Game game;
+	// Reference to the displayed board.
+	private BoardDisplay boardDisplay;
+	// The location of the piece on the board.
+	private Vector location;
+	// Boolean flag indicating whether or not this piece completes a selection.
+	private bool selectable;
+	// The direction of the piece from the anchor, if it's selectable.
+	private string selectableDirection;
+	
 	void Awake()
 	{
+		// Grab references to the game and the displayed board.
 		boardDisplay = GameObject.Find("BoardDisplay").GetComponent<BoardDisplay>();
 		game = GameObject.Find("Game").GetComponent<Game>();
+
+		// Grab the location of the piece from the parent space.
+		location = transform.parent.GetComponent<Space>().Location;
 	}
 
+	// Anything that happens when a piece is clicked is handled here.
 	void OnMouseDown()
 	{
-		if (color != game.currentPlayer) return;
+		// If this piece does not belong to the current player, do nothing.
+		if (color != game.CurrentPlayer) return;
+
+		// Otherwise, if this piece completes a selection, then do so.
 		if (selectable)
 		{
 			boardDisplay.CompleteSelection(location, selectableDirection);
 		}
+		// If not, then we want to anchor using this piece.
 		else
 		{
 			boardDisplay.Anchor(location);
 		}
 	}
 
-	public void Select()
+	// Mark this piece as an achor.
+	public void MarkAnchor()
 	{
-		// selected = true;
+		selectable = true;
 		GetComponent<SpriteRenderer>().color = selectedColor;
 	}
 
+	// Mark this piece as selectable. (This means it can be used to complete a selection.)
 	public void MarkSelectable(string direction)
 	{
 		selectable = true;
@@ -49,16 +68,15 @@ public class GamePiece : MonoBehaviour
 		GetComponent<SpriteRenderer>().color = selectableColor;
 	}
 
-	public void MarkAnchor()
+	// Mark this piece as selected.
+	public void Select()
 	{
-		selectable = true;
 		GetComponent<SpriteRenderer>().color = selectedColor;
 	}
 
 	public void Clear()
 	{
-		selectable = false; // anchor = false; // selected = false;
-		// selectableDirection = "";
+		selectable = false;
 		GetComponent<SpriteRenderer>().color = normalColor;
 	}
 }
