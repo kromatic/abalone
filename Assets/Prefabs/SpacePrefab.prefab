@@ -52,6 +52,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 292d00f2552aa4d238737153be356543, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  piece: {fileID: 0}
+  blackPrefab: {fileID: 4826524146303648, guid: 59e98d09b526d42419f91fa493cc47ec,
+    type: 2}
+  whitePrefab: {fileID: 4030985570797270, guid: 618db4aafa6534be99bd167898256352,
+    type: 2}
 --- !u!212 &212790370752122716
 SpriteRenderer:
   m_ObjectHideFlags: 1

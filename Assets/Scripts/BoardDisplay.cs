@@ -75,7 +75,7 @@ public class BoardDisplay : MonoBehaviour
 				var position = new Vector3(x, y, 0);
 				var space = Instantiate(spacePrefab, position, Quaternion.identity, transform).GetComponent<Space>();
 				// Set the location of the space on the board.
-				space.location = new Vector(i, j);
+				space.Location = new Vector(i, j);
 				row.Add(space);
 				// Increment the x coordinate for the next space.
 				x += spaceDiameter;
@@ -99,6 +99,7 @@ public class BoardDisplay : MonoBehaviour
 			int j = 0;
 			foreach (var slot in row)
 			{
+				//print(slot);
 				if (slot == 'O')
 				{
 					// Clear the displayed space; there is no piece at this location.
@@ -111,6 +112,7 @@ public class BoardDisplay : MonoBehaviour
 					boardDisplay[i][j].SetPiece(slot);
 				}
 			}
+			//print("\n");
 			i++;
 		}
 	}

@@ -14,11 +14,11 @@ public class Space : MonoBehaviour
     {
         get
         {
-            return Location;
+            return location;
         }
         set
         {
-            if (!locationSet) { Location = value; locationSet = true; }
+            if (!locationSet) { location = value; locationSet = true; }
             else throw new System.AccessViolationException("Location of a space cannot be changed.");
         }
     }
@@ -27,6 +27,8 @@ public class Space : MonoBehaviour
     public Transform blackPrefab;
     public Transform whitePrefab;
 
+    // Private backing field for Location property.
+    private Vector location;
     // Boolean flag indicating whether or not location has already been set.
     private bool locationSet = false;
 
@@ -34,8 +36,8 @@ public class Space : MonoBehaviour
     public void Clear()
     {
         if (piece != null) Destroy(piece.gameObject);
-        if (piece == null) Debug.Log("already null after destroying");
-        piece = null;
+        //if (piece == null) Debug.Log("already null after destroying");
+        //piece = null;
     }
 
     // SetPiece sets a piece at this space.
@@ -50,6 +52,7 @@ public class Space : MonoBehaviour
         if (piece != null) Destroy(piece.gameObject);
         // Now we need to create the new piece.
         var prefab = (color == 'B') ? blackPrefab : whitePrefab;
+        print("creating a piece");
         piece = Instantiate(prefab, transform.position, Quaternion.identity, transform).GetComponent<GamePiece>();
     }
 }
