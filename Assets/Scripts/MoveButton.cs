@@ -1,64 +1,60 @@
-﻿using System.Collections;
+﻿// MoveButton is a MonoBehaviour class representing the buttons used by the human player(s) to make moves.
+
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class MoveButton : MonoBehaviour
 {
-	public string direction;
+	//public string direction;
+	// The alpha used to draw the button when it is off.
 	public float disabledAlpha;
-	private bool on;
-	private List<Vector> selection;
-	private string selectionDirection;
-	private List<Vector> enemyColumn;
-	public Board board;
+
+	// The move to be made when the button is clicked. If null the button is off.
+	private Move move;
+	// References to the game and displayed board.
+	private Game game;	
 	private BoardDisplay boardDisplay;
-	private Game game;
 
 	void Awake()
 	{
-		on = false;
-		boardDisplay = GameObject.Find("BoardDisplay").GetComponent<BoardDisplay>();
 		game = GameObject.Find("Game").GetComponent<Game>();
+		boardDisplay = GameObject.Find("BoardDisplay").GetComponent<BoardDisplay>();
 	}
 
-	void Start()
-	{
-		board = game.board;
-		// Disable();
-	}
-
+	// What happens when the button is pressed is handled here.
 	void OnMouseDown()
 	{
-		// Debug.Log("pressing");
-		if (on)
+		// If the button is on, then we make the move.
+		if (move != null)
 		{
-			// Debug.Log("im trying to move");
-			// var game = GameObject.Find("Game").GetComponent<Game>();
-			boardDisplay.ClearSelection();
-			int scoreDelta = board.Move(selection, selectionDirection, enemyColumn, direction);
-			if (boardDisplay.flipBoard) boardDisplay.FlipBoard();
+			// First clear the pieces selected on the displayed board.
+			boardDisplay.ClearSelected();
+			// Then make the move and update the state of the game.
+			int scoreDelta = game.Board.Move(move);
+			game.NextTurn(scoreDelta);
 			boardDisplay.UpdateView();
 			boardDisplay.DisableMoveButtons();
-			game.NextTurn(scoreDelta);
+			// Flip the board if necessary.
+			if (boardDisplay.FlipEveryTurn) boardDisplay.Flip();
 		}
 	}
 
-	public void Enable(List<Vector> selection, string selectionDirection, List<Vector> enemyColumn)
+	// Enable the button to be pressed.
+	public void Enable(Move move)
 	{
-		on = true;
-		this.selection = selection; this.selectionDirection = selectionDirection;
-		this.enemyColumn = enemyColumn;
-		// Debug.Log("making button clickable");
+		this.move = move;
 		ChangeAlpha(1);
 	}
 
+	// Disable the button.
 	public void Disable()
 	{
-		on = false;
-		// selection = enemyColumn = null; selectionDirection = "";
+		move = null;
 		ChangeAlpha(disabledAlpha);
 	}
 
+	// Helper method for changing the alpha of the button.
 	private void ChangeAlpha(float alpha)
 	{
 		var sprite = GetComponent<SpriteRenderer>();
