@@ -153,19 +153,77 @@ public class Board
 		// If enemyColumn is null that means that the move is a sidestep.
 		if (move.EnemyColumn == null)
 		{
-			return MoveColumnSideStep(move.Selection.Column, move.Direction);
+			foreach (var location in move.Selection.Column)
+			{
+				SetSpace(GetNeighborLocation(location, move.Direction), move.Selection.Color);
+				SetSpace(location, 'O');
+			}
+			return 0;
 		}
 		// Otherwise we have to perform an in-line move.
 		else
 		{
-			// We first create an enumeration of the seleciton and enemy column such that the pieces farthest
-			// in the direction of motion are first.
-			IEnumerable<Vector> orderedSelection = move.Selection.Column;
-			// If the direction of motion coincides with selection, we need to reverse it.
-			if (move.Selection.Direction == move.Direction) orderedSelection = Enumerable.Reverse(orderedSelection);
-			// Proper order is to move the reversed enemyColumn first and then the orderedSelection.
-			var entireColumn = Enumerable.Concat(Enumerable.Reverse(move.EnemyColumn), orderedSelection);
-			return MoveColumnInLine(entireColumn, move.Direction);
+			var firstIndex = (move.Selection.Direction == move.Direction) ? 0 : move.Selection.Column.Count - 1;
+			int lastIndex;
+			Vector targetLocation;
+			SetSpace(move.Selection.Column[firstIndex], 'O');
+			if (move.EnemyColumn.Count == 0)
+			{
+				lastIndex = (firstIndex == 0) ? move.Selection.Column.Count - 1 : 0;
+				targetLocation = GetNeighborLocation(move.Selection.Column[lastIndex], move.Direction);
+				SetSpace(targetLocation, move.Selection.Color);
+				return 0;
+			}
+			else
+			{
+				SetSpace(move.EnemyColumn[0], move.Selection.Color);
+				lastIndex = move.EnemyColumn.Count - 1;
+				targetLocation = GetNeighborLocation(move.EnemyColumn[lastIndex], move.Direction);
+				if (!ValidLocation(targetLocation)) return 1;
+				else
+				{
+					var enemyColor = (move.Selection.Color == 'B') ? 'W' : 'B';
+					SetSpace(targetLocation, enemyColor);
+					return 0;
+				}
+			}
+		}
+	}
+
+	public int UndoMove(Move move)
+	{
+		if (move.EnemyColumn == null)
+		{
+			foreach (var location in move.Selection.Column)
+			{
+				SetSpace(location, move.Selection.Color);
+				SetSpace(GetNeighborLocation(location, move.Direction), 'O');
+			}
+			return 0;
+		}
+		else
+		{
+			var firstIndex = (move.Selection.Direction == move.Direction) ? 0 : move.Selection.Column.Count - 1;
+			var lastIndex = (firstIndex == 0) ? move.Selection.Column.Count - 1 : 0;
+			Vector targetLocation;
+			SetSpace(move.Selection.Column[firstIndex], move.Selection.Color);
+			if (move.EnemyColumn.Count == 0)
+			{
+				targetLocation = GetNeighborLocation(move.Selection.Column[lastIndex], move.Direction);
+			}
+			else
+			{
+				var enemyColor = (move.Selection.Color == 'B') ? 'W' : 'B';
+				SetSpace(move.EnemyColumn[0], enemyColor);
+				lastIndex = move.EnemyColumn.Count - 1;
+				targetLocation = GetNeighborLocation(move.EnemyColumn[lastIndex], move.Direction);
+			}
+			if (!ValidLocation(targetLocation)) return -1;
+			else
+			{
+				SetSpace(targetLocation, 'O');
+				return 0;
+			}
 		}
 	}
 

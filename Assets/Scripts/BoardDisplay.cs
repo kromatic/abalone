@@ -176,6 +176,8 @@ public class BoardDisplay : MonoBehaviour
 		}
 		showingSelected = true;
 
+		// In case of singleton direction, selection is directionless.
+		if (selected.Count == 1) direction = "";
 		// Create a Selection object to pass to the logical board.
 		var selection = new Selection(selected, direction, game.Board.GetSpace(selected[0]));
 		// Now we grab the allowed moves and indicate these as well.
