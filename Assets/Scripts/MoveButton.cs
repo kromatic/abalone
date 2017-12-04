@@ -12,6 +12,7 @@ public class MoveButton : MonoBehaviour
 
 	// The move to be made when the button is clicked. If null the button is off.
 	private Move move;
+
 	// References to the game and displayed board.
 	private Game game;	
 	private BoardDisplay boardDisplay;
@@ -28,15 +29,7 @@ public class MoveButton : MonoBehaviour
 		// If the button is on, then we make the move.
 		if (move != null)
 		{
-			// First clear the pieces selected on the displayed board.
-			boardDisplay.ClearSelected();
-			// Then make the move and update the state of the game.
-			int scoreDelta = game.Board.Move(move);
-			game.NextTurn(scoreDelta, move);
-			boardDisplay.UpdateView();
-			boardDisplay.DisableMoveButtons();
-			// Flip the board if necessary.
-			if (boardDisplay.FlipEveryTurn) boardDisplay.Flip();
+			game.MakeMove(move);
 		}
 	}
 

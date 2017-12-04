@@ -39,7 +39,7 @@ public class GamePiece : MonoBehaviour
 	void OnMouseDown()
 	{
 		// If this piece does not belong to the current player, do nothing.
-		if (color != game.CurrentPlayer) return;
+		if (color != game.CurrentPlayer || game.GameOver) return;
 
 		// Otherwise, if this piece completes a selection, then do so.
 		if (selectable)

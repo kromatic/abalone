@@ -12,6 +12,8 @@ public class Game : MonoBehaviour
 	// CurrentPlayer references player whose turn it is. Cannot be set publicly.
 	public char CurrentPlayer { get; private set; }
 
+	public bool GameOver { get; private set; }
+
 	// Board references instance of logical representation of game board.
 	// Cannot be set publicly. 
 	public Board Board { get; private set; }
@@ -21,6 +23,11 @@ public class Game : MonoBehaviour
 	public string whiteTurnMessage;
 	public string blackWinsMessage;
 	public string whiteWinsMessage;
+	public Button undoButton;
+	public Button redoButton;
+
+	// Reference to the displayed board.
+	private BoardDisplay boardDisplay;
 
 	// scores['B'] and scores['W'] store black and white scores, respectively.
 	private Dictionary<char, int> scores;
@@ -44,6 +51,9 @@ public class Game : MonoBehaviour
 		scores = new Dictionary<char, int> { {'B', 0}, {'W', 0} };
 		CurrentPlayer = 'B';
 		moveHistory = new LinkedList<Move>();
+		moveHistoryPointer = moveHistory.Last;
+		boardDisplay = GameObject.Find("BoardDisplay").GetComponent<BoardDisplay>();
+		GameOver = false;
 
 		// Find text objects displaying scores and game status.
 		var blackScoreText = GameObject.Find("BlackScore").GetComponent<Text>();
@@ -52,15 +62,28 @@ public class Game : MonoBehaviour
 		gameStatus = GameObject.Find("GameStatus").GetComponent<Text>();
 	}
 
+	public void MakeMove(Move move, bool newMove = true, bool undoMove = false)
+	{
+		// First make the move and update the state of the game.
+		int scoreDelta = (!undoMove) ? Board.Move(move) : Board.UndoMove(move);
+		NextTurn(scoreDelta, (newMove) ? move : null);
+		// Then update the board display.
+		boardDisplay.ClearSelected();
+		boardDisplay.UpdateView();
+		boardDisplay.DisableMoveButtons();
+		// Flip the board if necessary.
+		if (boardDisplay.FlipEveryTurn) boardDisplay.Flip();
+	}
+
 	// Update game state based on outcome of move.
 	// scoreDelta stores number of pieces displaced by the move (always 0 or 1).
-	public void NextTurn(int scoreDelta, Move lastMove)
+	private void NextTurn(int scoreDelta, Move lastMove)
 	{
 		// Update scores.
 		scores[CurrentPlayer] += scoreDelta;
 		displayedScores[CurrentPlayer].text = ScoreMessage(CurrentPlayer);
 		// If lastMove is not null, we should add it to the history.
-		// In this case a new move not in the history is being made.
+		// In this case a new move not (necessarily) in the history is being made.
 		// When lastMove is null, that means that NextTurn is being called by Undo or Redo methods,
 		// which handle the moveHistory themselves.
 		if (lastMove != null)
@@ -73,16 +96,19 @@ public class Game : MonoBehaviour
 			// Then add our move and update the pointer.
 			moveHistory.AddLast(lastMove);
 			moveHistoryPointer = moveHistory.Last;
+			undoButton.interactable = true;
+			redoButton.interactable = false;
 		}
 
-		// End game or switch turns and update game status display, based on score.
+		CurrentPlayer = (CurrentPlayer == 'B') ? 'W' : 'B';
+		// End game or update game status display, based on score.
 		if (scores[CurrentPlayer] == 6)
 		{
 			EndGame();
 		}
 		else
 		{
-			CurrentPlayer = (CurrentPlayer == 'B') ? 'W' : 'B';
+			GameOver = false;
 			gameStatus.text = (CurrentPlayer == 'B') ? blackTurnMessage : whiteTurnMessage;
 		}
 	}
@@ -102,29 +128,32 @@ public class Game : MonoBehaviour
 		}
 		// Reset move history.
 		moveHistory = new LinkedList<Move>();
+		moveHistoryPointer = moveHistory.Last;
+		undoButton.interactable = redoButton.interactable = false;
 	}
 
 	// Undo a move.
 	public void Undo()
 	{
-		var scoreDelta = Board.UndoMove(moveHistoryPointer.Value);
-		NextTurn(scoreDelta, null);
+		MakeMove(moveHistoryPointer.Value, newMove: false, undoMove: true);
 		moveHistoryPointer = moveHistoryPointer.Previous;
+		if (moveHistoryPointer == null) undoButton.interactable = false;
+		redoButton.interactable = true;
 	}
 
 	// Redo a move.
 	public void Redo()
 	{
-		var scoreDelta = Board.Move(moveHistoryPointer.Next.Value);
-		NextTurn(scoreDelta, null);
+		MakeMove(moveHistoryPointer.Next.Value, newMove: false);
 		moveHistoryPointer = moveHistoryPointer.Next;
+		if (moveHistoryPointer == moveHistory.Last) redoButton.interactable = false;
+		undoButton.interactable = true;
 	}
 
 	// End game.
 	private void EndGame()
 	{
-		// Disable board pieces by setting current player ('N' stands for "None").
-		CurrentPlayer = 'N';
+		GameOver = true;
 		// Display victory message based on who won.
 		gameStatus.text = (scores['B'] == 6) ? blackWinsMessage : whiteWinsMessage; // show a message
 	}

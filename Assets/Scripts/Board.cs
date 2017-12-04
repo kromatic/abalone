@@ -153,12 +153,12 @@ public class Board
 		// If enemyColumn is null that means that the move is a sidestep.
 		if (move.EnemyColumn == null)
 		{
-			MoveSideStep(move);
+			return MoveSideStep(move);
 		}
 		// Otherwise we have to perform an in-line move.
 		else
 		{
-			MoveInLine(move);
+			return MoveInLine(move);
 		}
 	}
 
@@ -166,11 +166,11 @@ public class Board
 	{
 		if (move.EnemyColumn == null)
 		{
-			UndoMoveSideStep(move);
+			return UndoMoveSideStep(move);
 		}
 		else
 		{
-			UndoMoveInLine(move);
+			return UndoMoveInLine(move);
 		}
 	}
 
