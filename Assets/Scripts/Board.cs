@@ -153,40 +153,12 @@ public class Board
 		// If enemyColumn is null that means that the move is a sidestep.
 		if (move.EnemyColumn == null)
 		{
-			foreach (var location in move.Selection.Column)
-			{
-				SetSpace(GetNeighborLocation(location, move.Direction), move.Selection.Color);
-				SetSpace(location, 'O');
-			}
-			return 0;
+			MoveSideStep(move);
 		}
 		// Otherwise we have to perform an in-line move.
 		else
 		{
-			var firstIndex = (move.Selection.Direction == move.Direction) ? 0 : move.Selection.Column.Count - 1;
-			int lastIndex;
-			Vector targetLocation;
-			SetSpace(move.Selection.Column[firstIndex], 'O');
-			if (move.EnemyColumn.Count == 0)
-			{
-				lastIndex = (firstIndex == 0) ? move.Selection.Column.Count - 1 : 0;
-				targetLocation = GetNeighborLocation(move.Selection.Column[lastIndex], move.Direction);
-				SetSpace(targetLocation, move.Selection.Color);
-				return 0;
-			}
-			else
-			{
-				SetSpace(move.EnemyColumn[0], move.Selection.Color);
-				lastIndex = move.EnemyColumn.Count - 1;
-				targetLocation = GetNeighborLocation(move.EnemyColumn[lastIndex], move.Direction);
-				if (!ValidLocation(targetLocation)) return 1;
-				else
-				{
-					var enemyColor = (move.Selection.Color == 'B') ? 'W' : 'B';
-					SetSpace(targetLocation, enemyColor);
-					return 0;
-				}
-			}
+			MoveInLine(move);
 		}
 	}
 
@@ -306,48 +278,54 @@ public class Board
 		return false;
 	}
 
-	// Helper method for moving a column of pieces to the side.
-	private int MoveColumnSideStep(IEnumerable<Vector> column, string direction)
+	// Helper method for making a sidestep move.
+	private int MoveSideStep(Move move)
 	{
-		foreach(var location in column)
+		// For each location in the selection, get the corresponding target location,
+		// set it to the selection color, and make the original location empty.
+		foreach (var location in move.Selection.Column)
 		{
-			SetSpace(GetNeighborLocation(location, direction), GetSpace(location));
+			SetSpace(GetNeighborLocation(location, move.Direction), move.Selection.Color);
 			SetSpace(location, 'O');
-			// Debug.Log("moved piece and should have cleared space");
 		}
+		// No pieces are pushed off the board, so we return 0.
 		return 0;
 	}
 
-	// Helper method for moving a column of pieces in line.
-	private int MoveColumnInLine(IEnumerable<Vector> column, string direction)
+	// Helper method for making an in-line move.
+	private int MoveInLine(Move move)
 	{
-		// The column should already be sorted such that the pieces farthest along the direction come first.
-		int score = 0;
-		var firstLocation = column.First();
-		var targetLocation = GetNeighborLocation(firstLocation, direction);
-		// If the first target location is off the board, that means an enemy piece will be displaced.
-		if (!ValidLocation(targetLocation))
+		// The location of the last selection piece to be moved has to be set to empty.
+		// This location is either the first or last in the selection, depending on direction of motion.
+		var emptyIndex = (move.Direction == move.Selection.Direction) ? 0 : move.Selection.Column.Count - 1;
+		SetSpace(move.Selection.Column[emptyIndex], 'O');
+		// Next, we must push a selection piece forward.
+		// If the enemy column is empty, we must grab the location based on the leading location of the selection.
+		int leadingIndex; Vector leadingTargetLocation;
+		if (move.EnemyColumn.Count == 0)
 		{
-			score = 1;
+			leadingIndex = (emptyIndex == 0) ? move.Selection.Column.Count - 1 : 0;
+			leadingTargetLocation = GetNeighborLocation(move.Selection.Column[leadingIndex], move.Direction);
+			// Since there is no enemy column, and this is a valid move, the location must be a valid empty space.
+			SetSpace(leadingTargetLocation, move.Selection.Color);
 		}
-		// Otherwise we proceed as usual.
+		// Otherwise, we set the first location in the enemy column to the selection color.
+		// In this case, we must also push the enemy column forward.
 		else
 		{
-			SetSpace(targetLocation, GetSpace(firstLocation));
+			SetSpace(move.EnemyColumn[0], move.Selection.Color);
+			leadingIndex = move.EnemyColumn.Count - 1;
+			leadingTargetLocation = GetNeighborLocation(move.EnemyColumn[leadingIndex], move.Direction);
+			// If the location is off the board, that means an enemy piece is pushed off.
+			if (!ValidLocation(leadingTargetLocation)) return 1;
+			// Otherwise we set the location to the enemy color and return 0;
+			else
+			{
+				var enemyColor = (move.Selection.Color == 'B') ? 'W' : 'B';
+				SetSpace(leadingTargetLocation, enemyColor);
+				return 0;
+			}
 		}
-
-		// Now we simply push the remaining pieces. None of these will have exceptional cases.
-		// Because we are moving in line, the remaining targeted locations are all in the column itself.
-		targetLocation = firstLocation;
-		// Iterate over locations in the column that haven't been moved yet.
-		foreach (var location in column.Skip(1))
-		{
-			SetSpace(targetLocation, GetSpace(location));
-			targetLocation = location;
-		}
-		// The last location in the column will be empty after the move.
-		SetSpace(targetLocation, 'O');
-		return score;
 	}
 
 	// Helper method for getting the location of a neighbor of a cell in a particular direction.
