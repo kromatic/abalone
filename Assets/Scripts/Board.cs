@@ -166,36 +166,11 @@ public class Board
 	{
 		if (move.EnemyColumn == null)
 		{
-			foreach (var location in move.Selection.Column)
-			{
-				SetSpace(location, move.Selection.Color);
-				SetSpace(GetNeighborLocation(location, move.Direction), 'O');
-			}
-			return 0;
+			UndoMoveSideStep(move);
 		}
 		else
 		{
-			var firstIndex = (move.Selection.Direction == move.Direction) ? 0 : move.Selection.Column.Count - 1;
-			var lastIndex = (firstIndex == 0) ? move.Selection.Column.Count - 1 : 0;
-			Vector targetLocation;
-			SetSpace(move.Selection.Column[firstIndex], move.Selection.Color);
-			if (move.EnemyColumn.Count == 0)
-			{
-				targetLocation = GetNeighborLocation(move.Selection.Column[lastIndex], move.Direction);
-			}
-			else
-			{
-				var enemyColor = (move.Selection.Color == 'B') ? 'W' : 'B';
-				SetSpace(move.EnemyColumn[0], enemyColor);
-				lastIndex = move.EnemyColumn.Count - 1;
-				targetLocation = GetNeighborLocation(move.EnemyColumn[lastIndex], move.Direction);
-			}
-			if (!ValidLocation(targetLocation)) return -1;
-			else
-			{
-				SetSpace(targetLocation, 'O');
-				return 0;
-			}
+			UndoMoveInLine(move);
 		}
 	}
 
@@ -323,6 +298,56 @@ public class Board
 			{
 				var enemyColor = (move.Selection.Color == 'B') ? 'W' : 'B';
 				SetSpace(leadingTargetLocation, enemyColor);
+				return 0;
+			}
+		}
+	}
+
+	// Helper method for undoing a sidestep move.
+	private int UndoMoveSideStep(Move move)
+	{
+		// For each location in the selection, we set that location to the selection color
+		// and clear the corresponding location into which the move was made.
+		foreach (var location in move.Selection.Column)
+		{
+			SetSpace(location, move.Selection.Color);
+			SetSpace(GetNeighborLocation(location, move.Direction), 'O');
+		}
+		// Since a sidestep move never pushes anything off the board, there is no change in score.
+		return 0;
+	}
+
+	// Helper method for undoing an in-line move.
+	private int UndoMoveInLine(Move move)
+	{
+		// First we set the selection location that was emptied during the move back to the selection color.
+		var emptyIndex = (move.Direction == move.Selection.Direction) ? 0 : move.Selection.Column.Count - 1;
+		SetSpace(move.Selection.Column[emptyIndex], move.Selection.Color);
+		// If the enemy column is empty, then we must clear the location into which the leading selection piece was moved.
+		// Since no piece were displaced in this case, we return 0;
+		int leadingIndex; Vector leadingTargetLocation;
+		if (move.EnemyColumn.Count == 0)
+		{
+			leadingIndex = (emptyIndex == 0) ? move.Selection.Column.Count - 1 : 0;
+			leadingTargetLocation = GetNeighborLocation(move.Selection.Column[leadingIndex], move.Direction);
+			SetSpace(leadingTargetLocation, 'O');
+			return 0;
+		}
+		// Otherwise we must restore the first location in the enemy column to the enemy color
+		// and then clear the space (if any) into which the leading piece of the enemy column was pushed.
+		else
+		{
+			var enemyColor = (move.Selection.Color == 'B') ? 'W' : 'B';
+			SetSpace(move.EnemyColumn[0], enemyColor);
+			leadingIndex = move.EnemyColumn.Count - 1;
+			leadingTargetLocation = GetNeighborLocation(move.EnemyColumn[leadingIndex], move.Direction);
+			// If location is invalid, that means an enemy piece was pushed off.
+			// Thus undoing the move restores that piece and decreases the attacker's score.
+			if (!ValidLocation(leadingTargetLocation)) return -1;
+			// Otherwise no pieces were pushed off and we set the location back to empty.
+			else
+			{
+				SetSpace(leadingTargetLocation, 'O');
 				return 0;
 			}
 		}
