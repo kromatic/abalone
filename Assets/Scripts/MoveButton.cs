@@ -32,7 +32,7 @@ public class MoveButton : MonoBehaviour
 			boardDisplay.ClearSelected();
 			// Then make the move and update the state of the game.
 			int scoreDelta = game.Board.Move(move);
-			game.NextTurn(scoreDelta);
+			game.NextTurn(scoreDelta, move);
 			boardDisplay.UpdateView();
 			boardDisplay.DisableMoveButtons();
 			// Flip the board if necessary.

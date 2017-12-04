@@ -283,6 +283,7 @@ public class Board
 			leadingTargetLocation = GetNeighborLocation(move.Selection.Column[leadingIndex], move.Direction);
 			// Since there is no enemy column, and this is a valid move, the location must be a valid empty space.
 			SetSpace(leadingTargetLocation, move.Selection.Color);
+			return 0;
 		}
 		// Otherwise, we set the first location in the enemy column to the selection color.
 		// In this case, we must also push the enemy column forward.

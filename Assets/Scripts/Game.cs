@@ -31,12 +31,19 @@ public class Game : MonoBehaviour
 	// Reference to text object displaying current status of game (current turn / game over).
 	private Text gameStatus;
 
+	// Linked list containing history of made moves.
+	// Used for undo / redo functionality.
+	private LinkedList<Move> moveHistory;
+	// Reference to the node in moveHistory that should be the next one to be undone.
+	private LinkedListNode<Move> moveHistoryPointer;
+
 	void Awake()
 	{
 		// Create a board and initialize scores and current player.
 		Board = new Board();
 		scores = new Dictionary<char, int> { {'B', 0}, {'W', 0} };
 		CurrentPlayer = 'B';
+		moveHistory = new LinkedList<Move>();
 
 		// Find text objects displaying scores and game status.
 		var blackScoreText = GameObject.Find("BlackScore").GetComponent<Text>();
@@ -47,11 +54,26 @@ public class Game : MonoBehaviour
 
 	// Update game state based on outcome of move.
 	// scoreDelta stores number of pieces displaced by the move (always 0 or 1).
-	public void NextTurn(int scoreDelta)
+	public void NextTurn(int scoreDelta, Move lastMove)
 	{
 		// Update scores.
 		scores[CurrentPlayer] += scoreDelta;
 		displayedScores[CurrentPlayer].text = ScoreMessage(CurrentPlayer);
+		// If lastMove is not null, we should add it to the history.
+		// In this case a new move not in the history is being made.
+		// When lastMove is null, that means that NextTurn is being called by Undo or Redo methods,
+		// which handle the moveHistory themselves.
+		if (lastMove != null)
+		{
+			// First remove any undone moves from the history, since a fresh move is being made. 
+			while (moveHistoryPointer != moveHistory.Last)
+			{
+				moveHistory.RemoveLast();
+			}
+			// Then add our move and update the pointer.
+			moveHistory.AddLast(lastMove);
+			moveHistoryPointer = moveHistory.Last;
+		}
 
 		// End game or switch turns and update game status display, based on score.
 		if (scores[CurrentPlayer] == 6)
@@ -78,6 +100,24 @@ public class Game : MonoBehaviour
 			scores[player] = 0;
 			displayedScores[player].text = ScoreMessage(player);
 		}
+		// Reset move history.
+		moveHistory = new LinkedList<Move>();
+	}
+
+	// Undo a move.
+	public void Undo()
+	{
+		var scoreDelta = Board.UndoMove(moveHistoryPointer.Value);
+		NextTurn(scoreDelta, null);
+		moveHistoryPointer = moveHistoryPointer.Previous;
+	}
+
+	// Redo a move.
+	public void Redo()
+	{
+		var scoreDelta = Board.Move(moveHistoryPointer.Next.Value);
+		NextTurn(scoreDelta, null);
+		moveHistoryPointer = moveHistoryPointer.Next;
 	}
 
 	// End game.
