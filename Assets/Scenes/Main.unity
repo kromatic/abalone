@@ -1759,12 +1759,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6c68dcd6117bc4c24a868387541967cf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  boardDisplay: {fileID: 1787510167}
   blackTurnMessage: Black to Move
   whiteTurnMessage: White to Move
   blackWinsMessage: Black Wins
   whiteWinsMessage: White Wins
   undoButton: {fileID: 0}
   redoButton: {fileID: 0}
+  gameStatus: {fileID: 0}
 --- !u!4 &1994898983
 Transform:
   m_ObjectHideFlags: 0

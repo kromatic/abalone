@@ -29,7 +29,7 @@ public class MoveButton : MonoBehaviour
 		// If the button is on, then we make the move.
 		if (move != null)
 		{
-			game.MakeMove(move);
+			game.ProcessMove(move);
 		}
 	}
 
