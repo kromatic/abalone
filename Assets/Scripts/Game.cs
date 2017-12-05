@@ -73,7 +73,7 @@ public class Game : MonoBehaviour
 		// If this is a new move, i.e. we are not undoing or redoing a move, then we add it to the history.
 		while (moveHistory.Last != moveHistoryPointer) moveHistory.RemoveLast();
 		moveHistory.AddLast(move);
-		moveHistoryPointer = moveHistoryPointer.Next;
+		moveHistoryPointer = moveHistory.Last;
 		undoButton.interactable = true; redoButton.interactable = false;
 		// Then update the board display.
 		boardDisplay.ClearSelected();
