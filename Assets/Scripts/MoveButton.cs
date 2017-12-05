@@ -20,7 +20,7 @@ public class MoveButton : MonoBehaviour
 	void Awake()
 	{
 		game = GameObject.Find("Game").GetComponent<Game>();
-		boardDisplay = GameObject.Find("BoardDisplay").GetComponent<BoardDisplay>();
+		// boardDisplay = GameObject.Find("BoardDisplay").GetComponent<BoardDisplay>();
 	}
 
 	// What happens when the button is pressed is handled here.
