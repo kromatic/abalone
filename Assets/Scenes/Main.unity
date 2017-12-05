@@ -1764,9 +1764,9 @@ MonoBehaviour:
   whiteTurnMessage: White to Move
   blackWinsMessage: Black Wins
   whiteWinsMessage: White Wins
-  undoButton: {fileID: 0}
-  redoButton: {fileID: 0}
-  gameStatus: {fileID: 0}
+  undoButton: {fileID: 1961615296}
+  redoButton: {fileID: 1481025357}
+  gameStatus: {fileID: 24040851}
 --- !u!4 &1994898983
 Transform:
   m_ObjectHideFlags: 0
