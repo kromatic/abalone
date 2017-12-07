@@ -76,6 +76,7 @@ public class GamePiece : MonoBehaviour
 
 	public void Clear()
 	{
+		print("clearing a piece");
 		selectable = false;
 		GetComponent<SpriteRenderer>().color = normalColor;
 	}

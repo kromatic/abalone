@@ -33,8 +33,8 @@ public class BoardDisplay : MonoBehaviour
 	private List<Vector> selected;
 
 	// Boolean flags indicating whether or not selectables / selected are being shown. 
-	private bool showingSelectables;
-	private bool showingSelected;
+	public bool showingSelectables;
+	public bool showingSelected;
 
 	void Awake()
 	{
@@ -237,7 +237,7 @@ public class BoardDisplay : MonoBehaviour
 	}
 
 	// Helper method for clearing the selectable pieces.
-	private void ClearSelectables()
+	public void ClearSelectables()
 	{
 		showingSelectables = false;
 		ClearPieces(selectables);

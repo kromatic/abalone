@@ -76,7 +76,9 @@ public class Game : MonoBehaviour
 		moveHistoryPointer = moveHistory.Last;
 		undoButton.interactable = true; redoButton.interactable = false;
 		// Then update the board display.
-		boardDisplay.ClearSelected();
+		print("here");
+		if (boardDisplay.showingSelectables) boardDisplay.ClearSelectables();
+		else if (boardDisplay.showingSelected) boardDisplay.ClearSelected();
 		boardDisplay.UpdateView();
 		boardDisplay.DisableMoveButtons();
 		// Flip the board if necessary.
@@ -125,6 +127,8 @@ public class Game : MonoBehaviour
 		moveHistory = new LinkedList<Move>();
 		moveHistoryPointer = moveHistory.Last;
 		undoButton.interactable = redoButton.interactable = false;
+		// Update display.
+		boardDisplay.Restart();
 	}
 
 	// Undo a move.
